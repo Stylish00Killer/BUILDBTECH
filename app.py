@@ -506,7 +506,9 @@ def license():
     try:
         with open('LICENSE.md', 'r') as file:
             license_content = file.read()
-        return render_template('license.html', license_content=license_content)
+            
+        # Add a flag to indicate this is markdown content
+        return render_template('license.html', license_content=license_content, is_markdown=True)
     except FileNotFoundError:
         return "License file not found.", 404
 
