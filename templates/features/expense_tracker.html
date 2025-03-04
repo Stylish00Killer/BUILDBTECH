@@ -1,0 +1,165 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Expense Tracker{% endblock %}
+
+{% block page_title %}Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="m-0">My Expenses</h5>
+                <a href="{{ url_for('new_expense') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> Add Expense
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if expenses %}
+                                {% for expense in expenses %}
+                                <tr>
+                                    <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ expense.description }}</td>
+                                    <td><span class="badge bg-secondary">{{ expense.category }}</span></td>
+                                    <td>${{ "%.2f"|format(expense.amount) }}</td>
+                                    <td>
+                                        <form action="{{ url_for('delete_expense', expense_id=expense.id) }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No expenses recorded yet.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>${{ "%.2f"|format(total) }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">Expense Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <canvas id="expense-chart"></canvas>
+                </div>
+                <div class="list-group">
+                    {% set categories = {} %}
+                    {% for expense in expenses %}
+                        {% if expense.category in categories %}
+                            {% set _ = categories.update({expense.category: categories[expense.category] + expense.amount}) %}
+                        {% else %}
+                            {% set _ = categories.update({expense.category: expense.amount}) %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% for category, amount in categories.items() %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ category }}
+                        <span class="badge bg-primary rounded-pill">${{ "%.2f"|format(amount) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Budget Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Create a monthly budget and stick to it</li>
+                    <li class="list-group-item">Look for student discounts on textbooks and supplies</li>
+                    <li class="list-group-item">Cook meals instead of eating out</li>
+                    <li class="list-group-item">Use public transportation or carpool</li>
+                    <li class="list-group-item">Take advantage of campus resources</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get expense data for chart
+        const categories = [];
+        const amounts = [];
+        const colors = [
+            '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', 
+            '#ff9f40', '#c9cbcf', '#7e57c2', '#26a69a', '#ec407a'
+        ];
+        
+        {% for category, amount in categories.items() %}
+            categories.push('{{ category }}');
+            amounts.push({{ amount }});
+        {% endfor %}
+        
+        // Create pie chart if there's data
+        if (categories.length > 0) {
+            const ctx = document.getElementById('expense-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: colors.slice(0, categories.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Expenses by Category'
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('expense-chart').parentNode.innerHTML = 
+                '<div class="alert alert-info">Add expenses to see your spending chart.</div>';
+        }
+    });
+</script>
+{% endblock %}

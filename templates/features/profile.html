@@ -1,0 +1,351 @@
+
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-placeholder rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 40px;">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <h4>{{ current_user.username }}</h4>
+                    <p class="badge bg-primary">{{ current_user.role|capitalize }}</p>
+                </div>
+                
+                <form action="{{ url_for('update_profile') }}" method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Display Name</label>
+                        <input type="text" class="form-control" id="displayName" name="display_name" value="{{ current_user.username }}">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Account Settings</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fas fa-key me-2"></i> Change Password
+                    </button>
+                    
+                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#notificationSettingsModal">
+                        <i class="fas fa-bell me-2"></i> Notification Settings
+                    </button>
+                    
+                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-trash me-2"></i> Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">Activity Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ lab_reports|default(0) }}</h3>
+                                <p class="mb-0">Lab Reports</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ projects|default(0) }}</h3>
+                                <p class="mb-0">Projects</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ notes|default(0) }}</h3>
+                                <p class="mb-0">Notes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <canvas id="activity-chart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="m-0">Recent Activity</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Created a new lab report</h6>
+                                    <small>3 days ago</small>
+                                </div>
+                                <p class="mb-1">Physics Lab Experiment</p>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Added a new note</h6>
+                                    <small>1 week ago</small>
+                                </div>
+                                <p class="mb-1">Computer Networks</p>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Started a new project</h6>
+                                    <small>2 weeks ago</small>
+                                </div>
+                                <p class="mb-1">Smart Home Automation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="m-0">Achievements</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="badge bg-success p-2 me-3">
+                                <i class="fas fa-trophy fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Active User</h6>
+                                <small>Logged in for 7 consecutive days</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="badge bg-primary p-2 me-3">
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Note Taker</h6>
+                                <small>Created 5+ notes</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-secondary p-2 me-3">
+                                <i class="fas fa-flask fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Lab Expert</h6>
+                                <small>Completed 3+ lab reports</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-password-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Settings Modal -->
+<div class="modal fade" id="notificationSettingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="notification-settings-form">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="eventReminders" checked>
+                        <label class="form-check-label" for="eventReminders">Event Reminders</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="assignmentDue">
+                        <label class="form-check-label" for="assignmentDue">Assignment Due Dates</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="marketplaceUpdates">
+                        <label class="form-check-label" for="marketplaceUpdates">Marketplace Updates</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-notifications-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <p><strong>Warning:</strong> This action cannot be undone.</p>
+                    <p>All your data, including lab reports, projects, notes, and other content will be permanently deleted.</p>
+                </div>
+                <p>To confirm, please type "DELETE" in the field below:</p>
+                <input type="text" class="form-control" id="deleteConfirm" placeholder="Type DELETE">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn" disabled>Delete My Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Activity chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('activity-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Activity Score',
+                    data: [5, 12, 8, 15],
+                    backgroundColor: 'rgba(255, 69, 0, 0.2)',
+                    borderColor: 'rgba(255, 69, 0, 1)',
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Activity'
+                    }
+                }
+            }
+        });
+    });
+    
+    // Password change
+    document.getElementById('save-password-btn').addEventListener('click', function() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('All fields are required');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match');
+            return;
+        }
+        
+        // Simulate password change
+        alert('Password changed successfully!');
+        bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+        document.getElementById('change-password-form').reset();
+    });
+    
+    // Notification settings
+    document.getElementById('save-notifications-btn').addEventListener('click', function() {
+        // Simulate saving notification settings
+        alert('Notification settings updated!');
+        bootstrap.Modal.getInstance(document.getElementById('notificationSettingsModal')).hide();
+    });
+    
+    // Delete account confirmation
+    document.getElementById('deleteConfirm').addEventListener('input', function() {
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        confirmBtn.disabled = this.value !== 'DELETE';
+    });
+    
+    document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+        if (document.getElementById('deleteConfirm').value === 'DELETE') {
+            // Simulate account deletion
+            alert('Your account has been scheduled for deletion. You will be logged out now.');
+            window.location.href = "{{ url_for('logout') }}";
+        }
+    });
+</script>
+{% endblock %}
