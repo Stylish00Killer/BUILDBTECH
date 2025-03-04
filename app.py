@@ -386,14 +386,14 @@ def new_expense():
 @login_required
 def delete_expense(expense_id):
     expense = Expense.query.get_or_404(expense_id)
-    
+
     if check_delete_permission(expense, current_user):
         db.session.delete(expense)
         db.session.commit()
         flash('Expense deleted successfully')
     else:
         flash('You do not have permission to delete this expense')
-    
+
     return redirect(url_for('expense_tracker'))
 
 # Additional Features
@@ -471,14 +471,14 @@ def new_event():
         date_str = request.form.get('date')
         location = request.form.get('location')
         event_type = request.form.get('event_type')
-        
+
         # Convert string date to datetime object
         try:
             event_date = datetime.strptime(date_str, '%Y-%m-%d')
         except ValueError:
             flash('Invalid date format')
             return render_template('features/new_event.html')
-        
+
         new_event = Event(
             title=title,
             description=description,
@@ -487,26 +487,26 @@ def new_event():
             event_type=event_type,
             user_id=current_user.id
         )
-        
+
         db.session.add(new_event)
         db.session.commit()
         flash('Event created successfully!')
         return redirect(url_for('events'))
-    
+
     return render_template('features/new_event.html')
 
 @app.route('/events/delete/<int:event_id>', methods=['POST'])
 @login_required
 def delete_event(event_id):
     event = Event.query.get_or_404(event_id)
-    
+
     if check_delete_permission(event, current_user):
         db.session.delete(event)
         db.session.commit()
         flash('Event deleted successfully')
     else:
         flash('You do not have permission to delete this event')
-    
+
     return redirect(url_for('events'))
 
 @app.route('/profile')
@@ -519,9 +519,9 @@ def profile():
     expenses = Expense.query.filter_by(user_id=current_user.id).count()
     marketplace_items = Marketplace.query.filter_by(user_id=current_user.id).count()
 
-    return render_template('features/profile.html', 
-                          lab_reports=lab_reports, 
-                          projects=projects, 
+    return render_template('features/profile.html',
+                          lab_reports=lab_reports,
+                          projects=projects,
                           notes=notes,
                           expenses=expenses,
                           marketplace_items=marketplace_items)
@@ -775,7 +775,7 @@ def api_search_marketplace():
 
     if query:
         items_query = items_query.filter(
-            Marketplace.title.like(f'%{query}%') | 
+            Marketplace.title.like(f'%{query}%') |
             Marketplace.description.like(f'%{query}%')
         )
 

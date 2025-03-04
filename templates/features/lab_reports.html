@@ -2,128 +2,183 @@
 
 {% block title %}Lab Reports{% endblock %}
 
-{% block page_title %}Lab Reports{% endblock %}
-
 {% block content %}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="m-0">AutoLab - AI-Powered Lab Reports</h5>
-                <a href="{{ url_for('new_lab_report') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> New Report
-                </a>
+<div class="card">
+    <div class="card-header">
+        <h2>AutoLab - AI-Powered Lab Reports</h2>
+        <a href="{{ url_for('new_lab_report') }}" class="nav-link">
+            <i class="fas fa-plus"></i> Create New Report
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-magic"></i>
+                <h3>AI Generation</h3>
+                <p>Transform your observations into complete lab reports instantly</p>
             </div>
-            <div class="card-body">
-                <p>Generate professional lab reports with minimal input using our AI technology. The system analyzes your observations and automatically creates structured reports with proper formatting and scientific analysis.</p>
-
-                <div class="row mt-4">
-                    <div class="col-md-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <div class="feature-icon">
-                                    <i class="fas fa-magic"></i>
-                                </div>
-                                <h5>AI Generation</h5>
-                                <p>Let our AI transform your raw observations into complete lab reports with proper structure and analysis.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <div class="feature-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <h5>Templates</h5>
-                                <p>Choose from various lab report templates based on your subject and experiment type.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <div class="feature-icon">
-                                    <i class="fas fa-cloud-download-alt"></i>
-                                </div>
-                                <h5>Offline Mode</h5>
-                                <p>Work on your reports even without internet connection. Changes will sync when you're back online.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="feature-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>Smart Templates</h3>
+                <p>Choose from various lab report formats by subject</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-cloud-download-alt"></i>
+                <h3>Offline Mode</h3>
+                <p>Work without internet - changes sync when online</p>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Your Lab Reports</h5>
-            </div>
-            <div class="card-body">
-                {% if current_user.is_teacher() %}
-                <div class="alert alert-info">
-                    <strong>Note for Teachers:</strong> You can view and manage student lab reports. You can only delete reports created by students or yourself.
-                </div>
-                {% endif %}
+        <div class="reports-list">
+            <h3>Your Lab Reports</h3>
+            {% if reports %}
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table>
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>Course</th>
-                                <th>Created</th>
+                                <th>Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if reports %}
-                                {% for report in reports %}
-                                <tr>
-                                    <td>{{ report.title }}</td>
-                                    <td>{{ report.course }}</td>
-                                    <td>{{ report.created_at.strftime('%Y-%m-%d') }}</td>
-                                    <td>
-                                        {% if report.status == 'draft' %}
-                                        <span class="badge bg-warning">Draft</span>
-                                        {% elif report.status == 'completed' %}
-                                        <span class="badge bg-success">Completed</span>
-                                        {% else %}
-                                        <span class="badge bg-info">{{ report.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-primary">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger">
+                            {% for report in reports %}
+                            <tr>
+                                <td>{{ report.title }}</td>
+                                <td>{{ report.course }}</td>
+                                <td>{{ report.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <span class="status-badge {{ report.status }}">
+                                        {{ report.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="#" class="btn-action view">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn-action edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('delete_lab_report', report_id=report.id) }}" class="d-inline">
+                                            <button type="submit" class="btn-action delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-3">
-                                        <p class="mb-0">No lab reports yet.</p>
-                                        <a href="{{ url_for('new_lab_report') }}" class="btn btn-primary btn-sm mt-2">
-                                            <i class="fas fa-plus"></i> Create Your First Report
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endif %}
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <p>No lab reports yet. Create your first report!</p>
+                    <a href="{{ url_for('new_lab_report') }}" class="btn-primary">
+                        Get Started
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .feature-card {
+        background-color: #ffdab9;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(255, 69, 0, 0.1);
+    }
+
+    .feature-card i {
+        font-size: 2em;
+        color: #ff4500;
+        margin-bottom: 10px;
+    }
+
+    .feature-card h3 {
+        color: #ff4500;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        color: #ff6347;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ff6347;
+    }
+
+    th {
+        background-color: #ffdab9;
+        color: #ff4500;
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+    }
+
+    .status-badge.draft {
+        background-color: #fffacd;
+        color: #ff6347;
+    }
+
+    .status-badge.completed {
+        background-color: #98fb98;
+        color: #006400;
+    }
+
+    .btn-action {
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 5px;
+        color: #ff4500;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-action:hover {
+        background-color: #fffacd;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+    }
+
+    .empty-state i {
+        font-size: 4em;
+        color: #ff4500;
+        margin-bottom: 20px;
+    }
+
+    .empty-state p {
+        color: #ff6347;
+        margin-bottom: 20px;
+    }
+</style>
 {% endblock %}

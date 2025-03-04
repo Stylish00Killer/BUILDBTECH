@@ -1,111 +1,168 @@
-
 {% extends 'base.html' %}
 
 {% block title %}New Lab Report{% endblock %}
 
-{% block page_title %}Create New Lab Report{% endblock %}
-
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">New Lab Report</h5>
+<div class="card">
+    <div class="card-header">
+        <h2>Create New Lab Report</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('new_lab_report') }}" id="lab-report-form">
+            <div class="form-group">
+                <label for="title">Report Title</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="e.g., Investigation of Ohm's Law">
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('new_lab_report') }}" id="lab-report-form">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="title" class="form-label">Report Title</label>
-                            <input type="text" class="form-control" id="title" name="title" required placeholder="e.g., Investigation of Ohm's Law">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="course" class="form-label">Course</label>
-                            <select class="form-select" id="course" name="course" required>
-                                <option value="">Select a course</option>
-                                <option value="Physics">Physics</option>
-                                <option value="Chemistry">Chemistry</option>
-                                <option value="Electronics">Electronics</option>
-                                <option value="Computer Science">Computer Science</option>
-                                <option value="Mechanical Engineering">Mechanical Engineering</option>
-                                <option value="Civil Engineering">Civil Engineering</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="experiment-objective" class="form-label">Experiment Objective</label>
-                        <textarea class="form-control" id="experiment-objective" name="experiment_objective" rows="2" placeholder="Briefly describe the purpose of this experiment"></textarea>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="apparatus" class="form-label">Apparatus Used</label>
-                            <textarea class="form-control" id="apparatus" name="apparatus" rows="3" placeholder="List all equipment and materials used"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="procedure" class="form-label">Procedure</label>
-                            <textarea class="form-control" id="procedure" name="procedure" rows="3" placeholder="Outline the steps followed during the experiment"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="observations" class="form-label">Observations & Raw Data</label>
-                        <textarea class="form-control" id="observations" name="observations" rows="5" required placeholder="Enter your experimental data, observations, and measurements here"></textarea>
-                        <div class="form-text">This is the most important part. The AI will generate your report based on these observations.</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="content" class="form-label">Report Content</label>
-                        <div class="card">
-                            <div class="card-body bg-light">
-                                <div class="d-flex align-items-center" id="generating-content" style="display: none !important;">
-                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <span>Generating report content...</span>
-                                </div>
-                                <div id="preview-content">
-                                    <p class="text-muted mb-0">Your report content will appear here after generation.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <button type="button" id="generate-btn" class="btn btn-info me-2">
-                            <i class="fas fa-magic me-1"></i> Generate Content
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i> Save Report
-                        </button>
-                    </div>
-                    
-                    <input type="hidden" id="content" name="content" value="">
-                </form>
+            <div class="form-group">
+                <label for="course">Course</label>
+                <select id="course" name="course" required>
+                    <option value="">Select a course</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label for="experiment-objective">Experiment Objective</label>
+                <textarea id="experiment-objective" name="experiment_objective" rows="2" 
+                         placeholder="Briefly describe the purpose of this experiment"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="apparatus">Apparatus Used</label>
+                <textarea id="apparatus" name="apparatus" rows="3" 
+                         placeholder="List all equipment and materials used"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="procedure">Procedure</label>
+                <textarea id="procedure" name="procedure" rows="3" 
+                         placeholder="Outline the steps followed during the experiment"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="observations">Observations & Raw Data</label>
+                <textarea id="observations" name="observations" rows="5" required 
+                         placeholder="Enter your experimental data, observations, and measurements here"></textarea>
+                <div class="helper-text">This is the most important part. The AI will generate your report based on these observations.</div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Generated Report</h3>
+                <div class="preview-content" id="preview-content">
+                    <p class="placeholder-text">Your report content will appear here after generation.</p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="generate-btn" class="btn-secondary">
+                    <i class="fas fa-magic"></i> Generate Content
+                </button>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Report
+                </button>
+            </div>
+
+            <input type="hidden" id="content" name="content" value="">
+        </form>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<style>
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .helper-text {
+        color: #ff6347;
+        font-size: 0.9em;
+        margin-top: 0.5rem;
+    }
+
+    .preview-section {
+        margin: 2rem 0;
+        padding: 1rem;
+        background-color: #fffacd;
+        border-radius: 10px;
+        border: 2px solid #ff6347;
+    }
+
+    .preview-content {
+        min-height: 200px;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 5px;
+    }
+
+    .placeholder-text {
+        color: #ff6347;
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-secondary {
+        background-color: #ffdab9;
+        color: #ff4500;
+        border: 2px solid #ff4500;
+    }
+
+    .btn-secondary:hover {
+        background-color: #fffacd;
+    }
+
+    .generating {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 2rem;
+    }
+
+    .generating i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    body {
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+</style>
+
 <script>
     document.getElementById('generate-btn').addEventListener('click', function() {
         const title = document.getElementById('title').value;
         const course = document.getElementById('course').value;
         const observations = document.getElementById('observations').value;
-        
+
         if (!title || !course || !observations) {
             alert('Please fill in the title, course, and observations fields.');
             return;
         }
-        
+
         // Show generating indicator
-        document.getElementById('generating-content').style.display = 'flex';
-        document.getElementById('preview-content').innerHTML = '';
-        
+        const previewContent = document.getElementById('preview-content');
+        previewContent.innerHTML = `
+            <div class="generating">
+                <i class="fas fa-spinner"></i>
+                <span>Generating report content...</span>
+            </div>
+        `;
+
         // Make API request to generate content
         fetch('/api/generate-lab-report', {
             method: 'POST',
@@ -120,37 +177,30 @@
         })
         .then(response => response.json())
         .then(data => {
-            // Hide generating indicator
-            document.getElementById('generating-content').style.display = 'none';
-            
             if (data.success) {
                 // Format and display the generated content
                 const formattedContent = data.report.replace(/\n/g, '<br>');
-                document.getElementById('preview-content').innerHTML = formattedContent;
-                
+                previewContent.innerHTML = formattedContent;
+
                 // Store the content in the hidden input for form submission
                 document.getElementById('content').value = data.report;
             } else {
-                document.getElementById('preview-content').innerHTML = '<p class="text-danger">Failed to generate content. Please try again.</p>';
+                previewContent.innerHTML = '<p class="error-text">Failed to generate content. Please try again.</p>';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            document.getElementById('generating-content').style.display = 'none';
-            
-            // Handle offline mode
             if (!navigator.onLine) {
                 const offlineContent = `# Lab Report: ${title}\n\n## Objective\n${document.getElementById('experiment-objective').value || 'To investigate and analyze the given experiment.'}\n\n## Apparatus\n${document.getElementById('apparatus').value || 'Various lab equipment as required.'}\n\n## Procedure\n${document.getElementById('procedure').value || 'Following standard experimental procedures.'}\n\n## Observations\n${observations}\n\n## Analysis\nThis section will be generated when online.\n\n## Conclusion\nPending analysis completion.`;
-                
+
                 const formattedContent = offlineContent.replace(/\n/g, '<br>');
-                document.getElementById('preview-content').innerHTML = formattedContent + '<br><small class="text-warning">(Generated in offline mode)</small>';
+                previewContent.innerHTML = formattedContent + '<br><small class="offline-note">(Generated in offline mode)</small>';
                 document.getElementById('content').value = offlineContent;
             } else {
-                document.getElementById('preview-content').innerHTML = '<p class="text-danger">Failed to generate content. Please try again.</p>';
+                previewContent.innerHTML = '<p class="error-text">Failed to generate content. Please try again.</p>';
             }
         });
     });
-    
     // Form submission with offline support
     document.getElementById('lab-report-form').addEventListener('submit', function(e) {
         if (!navigator.onLine) {
