@@ -1,13 +1,15 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 import requests
 import json
 from datetime import datetime
 import sqlite3
 import time
+import shutil
 
 # API Keys
 EDEN_AI_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg2ZWY4ODEtMjlmNy00NzY0LWJkOWYtNTVmM2JiMmUzZTQ1IiwidHlwZSI6ImFwaV90b2tlbiJ9.lV7anQ5LLaBekAmABdQwPLI4RbbqWrwAZBTOfxVDGU8'
@@ -101,6 +103,8 @@ class Note(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject = db.Column(db.String(100), nullable=False)
+    file_path = db.Column(db.String(255), nullable=True)
+    file_name = db.Column(db.String(255), nullable=True)
 
 class StudyGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -441,13 +445,32 @@ def new_note():
         title = request.form.get('title')
         content = request.form.get('content')
         subject = request.form.get('subject')
-
+        
+        # Create new note
         new_note = Note(
             title=title,
             content=content,
             subject=subject,
             user_id=current_user.id
         )
+        
+        # Handle file upload if present
+        if 'note_file' in request.files and request.files['note_file'].filename != '':
+            file = request.files['note_file']
+            
+            # Create directory if it doesn't exist
+            upload_dir = os.path.join('static', 'uploads', 'notes', str(current_user.id))
+            if not os.path.exists(upload_dir):
+                os.makedirs(upload_dir)
+            
+            # Generate safe filename and save
+            filename = str(int(time.time())) + '_' + file.filename
+            file_path = os.path.join(upload_dir, filename)
+            file.save(file_path)
+            
+            # Store relative path in database
+            new_note.file_path = os.path.join('uploads', 'notes', str(current_user.id), filename)
+            new_note.file_name = file.filename
 
         db.session.add(new_note)
         db.session.commit()
@@ -480,6 +503,78 @@ def new_event():
             return render_template('features/new_event.html')
         
         new_event = Event(
+
+@app.route('/notes/download/<int:note_id>')
+@login_required
+def download_note_text(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Security check: ensure user owns the note
+    if note.user_id != current_user.id and not current_user.is_teacher():
+        flash('Access denied: You do not have permission to download this note')
+        return redirect(url_for('notes'))
+    
+    # Create content for download
+    content = f"Title: {note.title}\n"
+    content += f"Subject: {note.subject}\n"
+    content += f"Date: {note.created_at.strftime('%Y-%m-%d')}\n\n"
+    content += note.content
+    
+    # Create response
+    response = app.response_class(
+        response=content,
+        status=200,
+        mimetype='text/plain'
+    )
+    
+    # Set headers for download
+    filename = f"{note.title.replace(' ', '_')}.txt"
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    
+    return response
+
+@app.route('/notes/download-file/<int:note_id>')
+@login_required
+def download_note_file(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Security check: ensure user owns the note
+    if note.user_id != current_user.id and not current_user.is_teacher():
+        flash('Access denied: You do not have permission to download this file')
+        return redirect(url_for('notes'))
+    
+    # Check if note has a file
+    if not note.file_path:
+        flash('No file attached to this note')
+        return redirect(url_for('notes'))
+    
+    # Return the file for download
+    file_path = os.path.join('static', note.file_path)
+    return send_file(file_path, 
+                    as_attachment=True, 
+                    download_name=note.file_name or 'attachment.file')
+
+# Add route for deleting notes
+@app.route('/notes/delete/<int:note_id>', methods=['POST'])
+@login_required
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    if check_delete_permission(note, current_user):
+        # Delete associated file if it exists
+        if note.file_path:
+            file_path = os.path.join('static', note.file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
+        db.session.delete(note)
+        db.session.commit()
+        flash('Note deleted successfully')
+    else:
+        flash('You do not have permission to delete this note')
+    
+    return redirect(url_for('notes'))
+
             title=title,
             description=description,
             date=event_date,
