@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Welcome to BUILDBTECH</h1>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lab Reports</h5>
+                    <p class="card-text">Manage and create your lab reports</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">View Reports</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Project Ideas</h5>
+                    <p class="card-text">Get AI-powered project suggestions</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Explore Ideas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Exam Prep</h5>
+                    <p class="card-text">Practice tests and study materials</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
