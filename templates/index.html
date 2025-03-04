@@ -1,90 +1,262 @@
 
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Welcome to BUILDBTECH Dashboard</h1>
+<div class="row">
+    <div class="col-md-8">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="m-0">Welcome to BUILDBTECH App</h5>
+                        <span class="badge bg-success">Beta</span>
+                    </div>
+                    <div class="card-body">
+                        <h2>Hello, {{ current_user.username }}!</h2>
+                        <p class="lead">Your all-in-one platform for academic success and career growth.</p>
+                        <p>BUILDBTECH offers AI-powered tools to streamline your studies, collaborate on projects, and manage your academic journey more effectively.</p>
+                        <div class="mt-3">
+                            <a href="{{ url_for('lab_reports') }}" class="btn btn-primary me-2 mb-2">
+                                <i class="fas fa-flask me-1"></i> Lab Reports
+                            </a>
+                            <a href="{{ url_for('project_ideas') }}" class="btn btn-primary me-2 mb-2">
+                                <i class="fas fa-lightbulb me-1"></i> Project Ideas
+                            </a>
+                            <a href="{{ url_for('schedule') }}" class="btn btn-primary me-2 mb-2">
+                                <i class="fas fa-calendar me-1"></i> Study Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="m-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <a href="{{ url_for('new_lab_report') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i> Create Lab Report
+                            </a>
+                            <a href="{{ url_for('new_project') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i> Add Project Idea
+                            </a>
+                            <a href="{{ url_for('new_schedule') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i> Create Study Plan
+                            </a>
+                            <a href="{{ url_for('new_note') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i> Add Note
+                            </a>
+                            <a href="{{ url_for('new_expense') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i> Track Expense
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="m-0">Academic Progress</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="progressChart"></canvas>
+                        <div class="mt-3 text-center">
+                            <a href="{{ url_for('progress') }}" class="btn btn-outline-primary btn-sm">
+                                View Detailed Progress
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <div class="dashboard-features">
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-flask"></i>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">Upcoming Events</h5>
             </div>
-            <h3>Lab Reports</h3>
-            <div class="feature-card-content">
-                <p>Create, manage, and submit your laboratory reports all in one place. Track your progress and get feedback.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('lab_reports') }}" class="btn">View Reports</a>
-            </div>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-lightbulb"></i>
-            </div>
-            <h3>Project Ideas</h3>
-            <div class="feature-card-content">
-                <p>Explore AI-powered project suggestions tailored to your interests and skill level. Get detailed plans and resources.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('project_ideas') }}" class="btn">Explore Ideas</a>
-            </div>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-book"></i>
-            </div>
-            <h3>Exam Prep</h3>
-            <div class="feature-card-content">
-                <p>Access study materials, practice tests, and personalized review guides to prepare for your exams efficiently.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('exam_prep') }}" class="btn">Start Learning</a>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="upcoming-events">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Database Lab Submission</h6>
+                            <small class="text-muted">Lab Report</small>
+                        </div>
+                        <span class="badge bg-danger rounded-pill">Today</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">AI Project Draft</h6>
+                            <small class="text-muted">Project</small>
+                        </div>
+                        <span class="badge bg-warning rounded-pill">Tomorrow</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Algorithms Study Group</h6>
+                            <small class="text-muted">Study Group</small>
+                        </div>
+                        <span class="badge bg-info rounded-pill">3 days</span>
+                    </li>
+                </ul>
+                <div class="p-3">
+                    <a href="{{ url_for('schedule') }}" class="btn btn-outline-primary btn-sm w-100">
+                        View All Events
+                    </a>
+                </div>
             </div>
         </div>
         
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-calendar"></i>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">AI Assistant</h5>
             </div>
-            <h3>Schedule</h3>
-            <div class="feature-card-content">
-                <p>Organize your classes, labs, and study sessions with our interactive calendar. Set reminders for important deadlines.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('schedule') }}" class="btn">View Calendar</a>
+            <div class="card-body">
+                <p>What would you like help with today?</p>
+                <form id="ai-assistant-form">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="ai-query" placeholder="Ask something...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                <div id="ai-response" class="p-3 bg-light rounded mt-3" style="display: none; max-height: 200px; overflow-y: auto;">
+                    <div class="d-flex align-items-center" id="ai-loading">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span>Thinking...</span>
+                    </div>
+                    <div id="ai-content"></div>
+                </div>
             </div>
         </div>
         
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-chart-line"></i>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Recent Activity</h5>
             </div>
-            <h3>Progress Tracker</h3>
-            <div class="feature-card-content">
-                <p>Monitor your academic performance and learning progress with detailed analytics and visual reports.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('progress') }}" class="btn">View Progress</a>
-            </div>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h3>Study Groups</h3>
-            <div class="feature-card-content">
-                <p>Connect with classmates, form study groups, and collaborate on projects. Share resources and knowledge.</p>
-            </div>
-            <div class="feature-card-footer">
-                <a href="{{ url_for('study_groups') }}" class="btn">Find Groups</a>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Created Physics Lab Report</h6>
+                            <small>3 days ago</small>
+                        </div>
+                        <small>You created a new lab report for Physics experiment.</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Joined Web Dev Study Group</h6>
+                            <small>1 week ago</small>
+                        </div>
+                        <small>You joined the Web Development study group.</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Added Machine Learning Project</h6>
+                            <small>2 weeks ago</small>
+                        </div>
+                        <small>You added a new project idea on Machine Learning.</small>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Progress Chart
+    const progressCtx = document.getElementById('progressChart').getContext('2d');
+    const progressChart = new Chart(progressCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Lab Reports', 'Projects', 'Study Plans', 'Notes'],
+            datasets: [{
+                data: [4, 3, 2, 7],
+                backgroundColor: [
+                    '#4361ee',
+                    '#3a0ca3',
+                    '#4cc9f0',
+                    '#7209b7'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // AI Assistant
+    document.getElementById('ai-assistant-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const query = document.getElementById('ai-query').value.trim();
+        
+        if (!query) return;
+        
+        const aiResponse = document.getElementById('ai-response');
+        const aiLoading = document.getElementById('ai-loading');
+        const aiContent = document.getElementById('ai-content');
+        
+        aiResponse.style.display = 'block';
+        aiLoading.style.display = 'flex';
+        aiContent.style.display = 'none';
+        
+        // Simulate AI response (in real app, this would be an API call)
+        setTimeout(() => {
+            aiLoading.style.display = 'none';
+            aiContent.style.display = 'block';
+            
+            // Sample responses based on keywords
+            let response = "";
+            if (query.toLowerCase().includes('lab')) {
+                response = "You can create a new lab report by going to the Lab Reports section and clicking on 'Create New Report'. Our AI will help you generate content based on your input.";
+            } else if (query.toLowerCase().includes('project')) {
+                response = "Check out the Project Ideas section for inspiration. You can generate AI-powered project ideas based on your interests and skill level.";
+            } else if (query.toLowerCase().includes('exam') || query.toLowerCase().includes('study')) {
+                response = "The Exam Prep section offers personalized study materials and practice questions. The Study Schedule can help you organize your preparation.";
+            } else {
+                response = "I'm here to help with your academic and project needs. You can ask about lab reports, projects, exam preparation, study schedules, and more.";
+            }
+            
+            aiContent.innerHTML = `<p>${response}</p>`;
+            document.getElementById('ai-query').value = '';
+        }, 1500);
+    });
+    
+    // Offline functionality
+    function handleOffline() {
+        // Cache page data
+        if (!navigator.onLine) {
+            localStorage.setItem('dashboard_data', JSON.stringify({
+                events: Array.from(document.querySelectorAll('#upcoming-events li')).map(li => li.innerHTML),
+                activity: Array.from(document.querySelectorAll('.list-group-flush a')).map(a => a.innerHTML)
+            }));
+        }
+    }
+    
+    window.addEventListener('beforeunload', handleOffline);
+</script>
 {% endblock %}

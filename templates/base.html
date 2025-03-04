@@ -4,331 +4,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUILDBTECH - {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>BUILDBTECH App - {% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --text-color: #212529;
+            --background-color: #f8f9fa;
+            --sidebar-width: 250px;
+        }
+        
         body {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
-            background-color: #ffefd5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             min-height: 100vh;
-            color: #ff4500;
-            transition: margin-left 0.3s;
         }
-
-        .navbar {
-            background-color: #ffdab9;
-            padding: 1rem;
-            border-bottom: 2px solid #ff6347;
-            z-index: 100;
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--primary-color);
+            color: white;
+            padding-top: 20px;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
-
-        .navbar .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        .sidebar.collapsed {
+            margin-left: -200px;
+            width: 50px;
+        }
+        
+        .sidebar .logo {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .sidebar ul.nav {
+            padding: 0;
+            list-style: none;
+        }
+        
+        .sidebar ul.nav li {
+            padding: 0;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar ul.nav li a {
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .sidebar ul.nav li a:hover,
+        .sidebar ul.nav li a.active {
+            background: var(--secondary-color);
+            color: white;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .sidebar ul.nav li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content-container {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+        
+        .content-container.full-width {
+            margin-left: 50px;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .navbar-brand {
-            color: #ff4500;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 1.5rem;
-        }
-
-        .navbar-nav {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .nav-link {
-            color: #ff4500;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .nav-link:hover {
-            background-color: #fffacd;
-        }
-
-        /* Dashboard Sidebar */
-        .sidebar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            background-color: #ffdab9;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 60px;
-            border-right: 2px solid #ff6347;
-            box-shadow: 3px 0 10px rgba(255, 69, 0, 0.2);
-        }
-
-        .sidebar.open {
-            width: 250px;
-        }
-
-        .sidebar-header {
-            padding: 10px 20px;
-            border-bottom: 2px solid #ff6347;
-            margin-bottom: 20px;
-        }
-
-        .sidebar-header h3 {
+        
+        .top-bar h1 {
             margin: 0;
-            color: #ff4500;
+            font-size: 24px;
+            font-weight: 600;
         }
-
-        .sidebar a {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #ff4500;
-            display: flex;
-            align-items: center;
-            transition: 0.3s;
-            white-space: nowrap;
+        
+        .user-dropdown {
+            position: relative;
         }
-
-        .sidebar a:hover {
-            background-color: #fffacd;
-        }
-
-        .sidebar a i {
-            margin-right: 15px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 25px;
-            cursor: pointer;
-            color: #ff4500;
-            border: none;
-            background: transparent;
-        }
-
-        .sidebar-footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 15px;
-            text-align: center;
-            border-top: 2px solid #ff6347;
-            background-color: #ffdab9;
-        }
-
-        /* Toggle button */
-        #sidebarToggle {
-            font-size: 20px;
-            cursor: pointer;
-            background-color: transparent;
-            border: none;
-            color: #ff4500;
-            margin-right: 15px;
-        }
-
-        /* Main content */
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            transition: margin-left 0.3s;
-        }
-
-        body.sidebar-open .main-content {
-            margin-left: 250px;
-        }
-
-        h1, h2, h3 {
-            text-align: center;
-            color: #ff4500;
-        }
-
-        .alert {
-            background-color: #fffacd;
-            border: 2px solid #ff6347;
-            border-radius: 5px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            color: #ff4500;
-        }
-
+        
         .card {
-            background-color: #ffdab9;
-            border: 2px solid #ff6347;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
-        }
-
-        form {
-            max-width: 80%;
-            margin: 20px auto;
-            padding: 15px;
-            background-color: #ffdab9;
-            border: 2px solid #ff6347;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ff4500;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 2px solid #ff6347;
-            border-radius: 5px;
-            background-color: #fffacd;
-            font-family: inherit;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #ff4500;
-            color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: inherit;
-        }
-
-        button:hover {
-            background-color: #ff6347;
-        }
-
-        a {
-            color: #ff4500;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Dashboard feature cards */
-        .dashboard-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .feature-card {
-            background-color: #ffdab9;
-            border: 2px solid #ff6347;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
             transition: transform 0.3s;
         }
         
-        .feature-card:hover {
+        .card:hover {
             transform: translateY(-5px);
         }
         
-        .feature-card h3 {
-            margin-top: 0;
-            color: #ff4500;
-            text-align: center;
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
         }
         
-        .feature-card-icon {
-            font-size: 30px;
-            text-align: center;
+        .card-body {
+            padding: 20px;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
             margin-bottom: 15px;
-            color: #ff4500;
+            color: var(--primary-color);
         }
         
-        .feature-card-content {
-            color: #ff4500;
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
         
-        .feature-card-footer {
-            margin-top: 15px;
-            text-align: center;
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .offline-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .online-badge {
+            background-color: #198754;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                margin-left: -200px;
+                width: 50px;
+            }
+            
+            .sidebar.expanded {
+                margin-left: 0;
+                width: var(--sidebar-width);
+            }
+            
+            .content-container {
+                margin-left: 50px;
+            }
+            
+            .content-container.sidebar-expanded {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .sidebar .logo span,
+            .sidebar ul.nav li a span {
+                display: none;
+            }
+            
+            .sidebar.expanded .logo span,
+            .sidebar.expanded ul.nav li a span {
+                display: inline;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-container {
+                margin-left: 0;
+                padding: 10px;
+            }
+            
+            .sidebar {
+                margin-left: -250px;
+                z-index: 1050;
+            }
+            
+            .sidebar.expanded {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .top-bar .user-dropdown {
+                margin-top: 10px;
+            }
         }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <div id="dashboard" class="sidebar">
-        <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-        <div class="sidebar-header">
-            <h3>BUILDBTECH</h3>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <span>BUILDBTECH</span>
         </div>
-        <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
-        <a href="{{ url_for('lab_reports') }}"><i class="fas fa-flask"></i> Lab Reports</a>
-        <a href="{{ url_for('project_ideas') }}"><i class="fas fa-lightbulb"></i> Project Ideas</a>
-        <a href="{{ url_for('exam_prep') }}"><i class="fas fa-book"></i> Exam Prep</a>
-        <a href="{{ url_for('schedule') }}"><i class="fas fa-calendar"></i> Schedule</a>
-        <a href="{{ url_for('progress') }}"><i class="fas fa-chart-line"></i> Progress</a>
-        <a href="{{ url_for('study_groups') }}"><i class="fas fa-users"></i> Study Groups</a>
-        {% if current_user.is_authenticated %}
-        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        {% endif %}
-        <div class="sidebar-footer">
-            <p>© 2024 BUILDBTECH</p>
-        </div>
+        <ul class="nav flex-column">
+            <li>
+                <a href="{{ url_for('index') }}" class="{{ 'active' if request.path == url_for('index') }}">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('lab_reports') }}" class="{{ 'active' if 'lab-reports' in request.path }}">
+                    <i class="fas fa-flask"></i> <span>Lab Reports</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('project_ideas') }}" class="{{ 'active' if 'project-ideas' in request.path }}">
+                    <i class="fas fa-lightbulb"></i> <span>Project Ideas</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('exam_prep') }}" class="{{ 'active' if 'exam-prep' in request.path }}">
+                    <i class="fas fa-book"></i> <span>Exam Prep</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('schedule') }}" class="{{ 'active' if 'schedule' in request.path }}">
+                    <i class="fas fa-calendar"></i> <span>Study Schedule</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('progress') }}" class="{{ 'active' if 'progress' in request.path }}">
+                    <i class="fas fa-chart-line"></i> <span>Progress</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('study_groups') }}" class="{{ 'active' if 'study-groups' in request.path }}">
+                    <i class="fas fa-users"></i> <span>Study Groups</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('marketplace') }}" class="{{ 'active' if 'marketplace' in request.path }}">
+                    <i class="fas fa-store"></i> <span>Marketplace</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('notes') }}" class="{{ 'active' if 'notes' in request.path }}">
+                    <i class="fas fa-sticky-note"></i> <span>Notes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('events') }}" class="{{ 'active' if 'events' in request.path }}">
+                    <i class="fas fa-calendar-alt"></i> <span>Events</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('expense_tracker') }}" class="{{ 'active' if 'expense-tracker' in request.path }}">
+                    <i class="fas fa-wallet"></i> <span>Expenses</span>
+                </a>
+            </li>
+            <li class="mt-4">
+                <a href="{{ url_for('profile') }}" class="{{ 'active' if 'profile' in request.path }}">
+                    <i class="fas fa-user-circle"></i> <span>Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                </a>
+            </li>
+        </ul>
     </div>
 
-    <nav class="navbar">
-        <div class="container">
-            <div style="display: flex; align-items: center;">
-                <button id="sidebarToggle" onclick="toggleSidebar()">
+    <!-- Content Container -->
+    <div class="content-container" id="content">
+        <div class="top-bar">
+            <div>
+                <button id="sidebarToggle" class="btn btn-sm btn-light d-md-none">
                     <i class="fas fa-bars"></i>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('index') }}">BUILDBTECH</a>
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
             </div>
-            {% if current_user.is_authenticated %}
-            <div class="navbar-nav">
-                <span class="nav-link">Welcome, {{ current_user.username }}</span>
-                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <div class="d-flex align-items-center">
+                <span id="connection-status" class="online-badge me-3">
+                    <i class="fas fa-wifi"></i> Online
+                </span>
+                <div class="user-dropdown">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i> {{ current_user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            {% endif %}
         </div>
-    </nav>
 
-    <div class="main-content">
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert">{{ message }}</div>
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        {% block content %}{% endblock %}
+        <!-- Main Content -->
+        <div class="container-fluid">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Offline detection script -->
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('dashboard');
-            const body = document.body;
+        // Toggle sidebar on mobile
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('expanded');
+            document.getElementById('content').classList.toggle('sidebar-expanded');
+        });
+        
+        // Check online/offline status
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            const statusBadge = document.getElementById('connection-status');
             
-            sidebar.classList.toggle('open');
-            body.classList.toggle('sidebar-open');
+            if (isOnline) {
+                statusBadge.className = 'online-badge me-3';
+                statusBadge.innerHTML = '<i class="fas fa-wifi"></i> Online';
+            } else {
+                statusBadge.className = 'offline-badge me-3';
+                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Offline';
+            }
         }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+        
+        // Save data to localStorage when offline
+        function saveOfflineData(key, data) {
+            if (!navigator.onLine) {
+                const offlineData = JSON.parse(localStorage.getItem('buildbtech_offline_data') || '{}');
+                offlineData[key] = data;
+                localStorage.setItem('buildbtech_offline_data', JSON.stringify(offlineData));
+                return true;
+            }
+            return false;
+        }
+        
+        // Sync offline data when back online
+        function syncOfflineData() {
+            if (navigator.onLine) {
+                const offlineData = JSON.parse(localStorage.getItem('buildbtech_offline_data') || '{}');
+                
+                // If there's offline data, show sync notification
+                if (Object.keys(offlineData).length > 0) {
+                    const syncAlert = document.createElement('div');
+                    syncAlert.className = 'alert alert-info alert-dismissible fade show';
+                    syncAlert.innerHTML = 'Syncing offline data... <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                    document.querySelector('.container-fluid').prepend(syncAlert);
+                    
+                    // Here you would implement actual syncing logic
+                    setTimeout(() => {
+                        localStorage.removeItem('buildbtech_offline_data');
+                        syncAlert.className = 'alert alert-success alert-dismissible fade show';
+                        syncAlert.innerHTML = 'Offline data synced successfully! <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                    }, 1500);
+                }
+            }
+        }
+        
+        window.addEventListener('online', syncOfflineData);
     </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

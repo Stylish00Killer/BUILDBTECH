@@ -1,21 +1,123 @@
 
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Lab Reports{% endblock %}
 
+{% block page_title %}Lab Reports{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Lab Reports</h1>
-    
-    <div class="card">
-        <div class="card-content">
-            <p>Create, manage, and submit your laboratory reports all in one place. Track your progress and get feedback.</p>
-            
-            <div class="mt-4">
-                <h3>Your Reports</h3>
-                <p>You don't have any lab reports yet. Create your first one!</p>
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="m-0">AutoLab - AI-Powered Lab Reports</h5>
+                <a href="{{ url_for('new_lab_report') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> New Report
+                </a>
+            </div>
+            <div class="card-body">
+                <p>Generate professional lab reports with minimal input using our AI technology. The system analyzes your observations and automatically creates structured reports with proper formatting and scientific analysis.</p>
                 
-                <button class="mt-2" onclick="alert('Feature coming soon!')">Create New Report</button>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-magic"></i>
+                                </div>
+                                <h5>AI Generation</h5>
+                                <p>Let our AI transform your raw observations into complete lab reports with proper structure and analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h5>Templates</h5>
+                                <p>Choose from various lab report templates based on your subject and experiment type.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-cloud-download-alt"></i>
+                                </div>
+                                <h5>Offline Mode</h5>
+                                <p>Work on your reports even without internet connection. Changes will sync when you're back online.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Your Lab Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Course</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if reports %}
+                                {% for report in reports %}
+                                <tr>
+                                    <td>{{ report.title }}</td>
+                                    <td>{{ report.course }}</td>
+                                    <td>{{ report.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if report.status == 'draft' %}
+                                        <span class="badge bg-warning">Draft</span>
+                                        {% elif report.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% else %}
+                                        <span class="badge bg-info">{{ report.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-3">
+                                        <p class="mb-0">No lab reports yet.</p>
+                                        <a href="{{ url_for('new_lab_report') }}" class="btn btn-primary btn-sm mt-2">
+                                            <i class="fas fa-plus"></i> Create Your First Report
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
