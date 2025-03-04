@@ -590,6 +590,77 @@ def delete_note(note_id):
     
     return render_template('features/new_event.html')
 
+@app.route('/notes/download/<int:note_id>')
+@login_required
+def download_note_text(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Security check: ensure user owns the note
+    if note.user_id != current_user.id and not current_user.is_teacher():
+        flash('Access denied: You do not have permission to download this note')
+        return redirect(url_for('notes'))
+    
+    # Create content for download
+    content = f"Title: {note.title}\n"
+    content += f"Subject: {note.subject}\n"
+    content += f"Date: {note.created_at.strftime('%Y-%m-%d')}\n\n"
+    content += note.content
+    
+    # Create response
+    response = app.response_class(
+        response=content,
+        status=200,
+        mimetype='text/plain'
+    )
+    
+    # Set headers for download
+    filename = f"{note.title.replace(' ', '_')}.txt"
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    
+    return response
+
+@app.route('/notes/download-file/<int:note_id>')
+@login_required
+def download_note_file(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Security check: ensure user owns the note
+    if note.user_id != current_user.id and not current_user.is_teacher():
+        flash('Access denied: You do not have permission to download this file')
+        return redirect(url_for('notes'))
+    
+    # Check if note has a file
+    if not note.file_path:
+        flash('No file attached to this note')
+        return redirect(url_for('notes'))
+    
+    # Return the file for download
+    file_path = os.path.join('static', note.file_path)
+    return send_file(file_path, 
+                    as_attachment=True, 
+                    download_name=note.file_name or 'attachment.file')
+
+# Add route for deleting notes
+@app.route('/notes/delete/<int:note_id>', methods=['POST'])
+@login_required
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    if check_delete_permission(note, current_user):
+        # Delete associated file if it exists
+        if note.file_path:
+            file_path = os.path.join('static', note.file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
+        db.session.delete(note)
+        db.session.commit()
+        flash('Note deleted successfully')
+    else:
+        flash('You do not have permission to delete this note')
+    
+    return redirect(url_for('notes'))
+
 @app.route('/events/delete/<int:event_id>', methods=['POST'])
 @login_required
 def delete_event(event_id):
