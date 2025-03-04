@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useDatabase } from '../hooks/useDatabase';
 import { ollamaService } from '../services/ollama.service';
@@ -9,6 +9,12 @@ const LabReportPage: React.FC = () => {
   const { data: labReports = [] } = useLabReports();
   const saveLabReportMutation = useSaveLabReport();
 
+  const [serviceStatus, setServiceStatus] = useState({
+    isChecking: true,
+    isAvailable: false,
+    error: ''
+  });
+
   const [newReport, setNewReport] = useState({
     title: '',
     observations: '',
@@ -17,6 +23,27 @@ const LabReportPage: React.FC = () => {
     isGenerating: false,
     error: ''
   });
+
+  useEffect(() => {
+    checkOllamaStatus();
+  }, []);
+
+  const checkOllamaStatus = async () => {
+    try {
+      const status = await ollamaService.checkStatus();
+      setServiceStatus({
+        isChecking: false,
+        isAvailable: status.isAvailable && status.modelLoaded,
+        error: status.error || ''
+      });
+    } catch (error) {
+      setServiceStatus({
+        isChecking: false,
+        isAvailable: false,
+        error: 'Failed to connect to Ollama service'
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +94,46 @@ const LabReportPage: React.FC = () => {
       }));
     }
   };
+
+  if (serviceStatus.isChecking) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (!serviceStatus.isAvailable) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                Ollama Service Unavailable
+              </h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>{serviceStatus.error}</p>
+                <p className="mt-2">Please ensure Ollama is running with the following command:</p>
+                <pre className="mt-2 bg-red-100 p-2 rounded">ollama run deepseek-r1:8b</pre>
+                <button
+                  onClick={checkOllamaStatus}
+                  className="mt-4 bg-red-100 text-red-800 px-4 py-2 rounded hover:bg-red-200"
+                >
+                  Retry Connection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
