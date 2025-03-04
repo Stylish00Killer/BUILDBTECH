@@ -4,7 +4,7 @@ modules = ["nodejs-20", "python-3.11"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Project"
+runButton = "BUILDBTECH App"
 
 [[workflows.workflow]]
 name = "Project"
@@ -48,6 +48,14 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python app.py"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "BUILDBTECH App"
+author = 40207877
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
 
 [deployment]
 run = ["sh", "-c", "NODE_ENV=development npx electron ."]
