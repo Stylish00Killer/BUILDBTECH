@@ -503,35 +503,20 @@ def new_event():
             return render_template('features/new_event.html')
         
         new_event = Event(
-
-@app.route('/notes/download/<int:note_id>')
-@login_required
-def download_note_text(note_id):
-    note = Note.query.get_or_404(note_id)
+            title=title,
+            description=description,
+            date=event_date,
+            location=location,
+            event_type=event_type,
+            user_id=current_user.id
+        )
+        
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Event created successfully!')
+        return redirect(url_for('events'))
     
-    # Security check: ensure user owns the note
-    if note.user_id != current_user.id and not current_user.is_teacher():
-        flash('Access denied: You do not have permission to download this note')
-        return redirect(url_for('notes'))
-    
-    # Create content for download
-    content = f"Title: {note.title}\n"
-    content += f"Subject: {note.subject}\n"
-    content += f"Date: {note.created_at.strftime('%Y-%m-%d')}\n\n"
-    content += note.content
-    
-    # Create response
-    response = app.response_class(
-        response=content,
-        status=200,
-        mimetype='text/plain'
-    )
-    
-    # Set headers for download
-    filename = f"{note.title.replace(' ', '_')}.txt"
-    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
-    
-    return response
+    return render_template('features/new_event.html')
 
 @app.route('/notes/download-file/<int:note_id>')
 @login_required
@@ -575,49 +560,7 @@ def delete_note(note_id):
     
     return redirect(url_for('notes'))
 
-            title=title,
-            description=description,
-            date=event_date,
-            location=location,
-            event_type=event_type,
-            user_id=current_user.id
-        )
-        
-        db.session.add(new_event)
-        db.session.commit()
-        flash('Event created successfully!')
-        return redirect(url_for('events'))
-    
-    return render_template('features/new_event.html')
-
-@app.route('/notes/download/<int:note_id>')
-@login_required
-def download_note_text(note_id):
-    note = Note.query.get_or_404(note_id)
-    
-    # Security check: ensure user owns the note
-    if note.user_id != current_user.id and not current_user.is_teacher():
-        flash('Access denied: You do not have permission to download this note')
-        return redirect(url_for('notes'))
-    
-    # Create content for download
-    content = f"Title: {note.title}\n"
-    content += f"Subject: {note.subject}\n"
-    content += f"Date: {note.created_at.strftime('%Y-%m-%d')}\n\n"
-    content += note.content
-    
-    # Create response
-    response = app.response_class(
-        response=content,
-        status=200,
-        mimetype='text/plain'
-    )
-    
-    # Set headers for download
-    filename = f"{note.title.replace(' ', '_')}.txt"
-    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
-    
-    return response
+            
 
 @app.route('/notes/download-file/<int:note_id>')
 @login_required
