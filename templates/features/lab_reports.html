@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block title %}Lab Reports{% endblock %}
@@ -17,7 +16,7 @@
             </div>
             <div class="card-body">
                 <p>Generate professional lab reports with minimal input using our AI technology. The system analyzes your observations and automatically creates structured reports with proper formatting and scientific analysis.</p>
-                
+
                 <div class="row mt-4">
                     <div class="col-md-4">
                         <div class="card h-100">
@@ -56,13 +55,18 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <h5 class="m-0">Your Lab Reports</h5>
             </div>
             <div class="card-body">
+                {% if current_user.is_teacher() %}
+                <div class="alert alert-info">
+                    <strong>Note for Teachers:</strong> You can view and manage student lab reports. You can only delete reports created by students or yourself.
+                </div>
+                {% endif %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>

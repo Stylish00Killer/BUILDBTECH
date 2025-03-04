@@ -1,0 +1,49 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Teacher Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Teacher Panel</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Student Management</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Registration Date</th>
+                                    <th>Lab Reports</th>
+                                    <th>Projects</th>
+                                    <th>Study Plans</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.id }}</td>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.email or 'Not provided' }}</td>
+                                    <td>{{ student.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ student.lab_reports|length }}</td>
+                                    <td>{{ student.projects|length }}</td>
+                                    <td>{{ student.study_plans|length }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

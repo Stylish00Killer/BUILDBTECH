@@ -32,6 +32,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     email = db.Column(db.String(100), nullable=True)
+    role = db.Column(db.String(20), default='student')  # 'student', 'teacher', 'admin'
     profile_completed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
@@ -42,6 +43,12 @@ class User(UserMixin, db.Model):
     expenses = db.relationship('Expense', backref='user', lazy=True)
     events = db.relationship('Event', backref='participants', lazy=True)
     notes = db.relationship('Note', backref='author', lazy=True)
+    
+    def is_admin(self):
+        return self.role == 'admin'
+        
+    def is_teacher(self):
+        return self.role == 'teacher' or self.role == 'admin'
 
 class LabReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -151,6 +158,12 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+        role = request.form.get('role', 'student')
+
+        # Only admins can create teachers
+        if role == 'teacher' and (not current_user.is_authenticated or not current_user.is_admin()):
+            role = 'student'
+            flash('Only admins can create teacher accounts')
 
         if password != confirm_password:
             flash('Passwords do not match')
@@ -163,7 +176,7 @@ def register():
 
         # Hash the password before storing
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
+        new_user = User(username=username, password=hashed_password, role=role)
         db.session.add(new_user)
         db.session.commit()
 
@@ -441,6 +454,43 @@ def events():
 def profile():
     return render_template('features/profile.html')
 
+@app.route('/admin')
+@login_required
+def admin_panel():
+    if not current_user.is_admin():
+        flash('Access denied: Admin privileges required')
+        return redirect(url_for('index'))
+    
+    users = User.query.all()
+    return render_template('features/admin_panel.html', users=users)
+
+@app.route('/admin/user/<int:user_id>', methods=['POST'])
+@login_required
+def update_user_role(user_id):
+    if not current_user.is_admin():
+        flash('Access denied: Admin privileges required')
+        return redirect(url_for('index'))
+    
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get('role')
+    
+    if new_role in ['student', 'teacher', 'admin']:
+        user.role = new_role
+        db.session.commit()
+        flash(f'User {user.username} role updated to {new_role}')
+    
+    return redirect(url_for('admin_panel'))
+
+@app.route('/teacher')
+@login_required
+def teacher_panel():
+    if not current_user.is_teacher():
+        flash('Access denied: Teacher privileges required')
+        return redirect(url_for('index'))
+    
+    students = User.query.filter_by(role='student').all()
+    return render_template('features/teacher_panel.html', students=students)
+
 @app.route('/profile/update', methods=['POST'])
 @login_required
 def update_profile():
@@ -673,16 +723,63 @@ def create_initial_user():
         return 'Initial admin user created with username: admin and password: admin123'
     return 'Users already exist'
 
+# Helper functions for permission handling
+def check_delete_permission(item, user):
+    """Check if a user has permission to delete an item"""
+    # Admin can delete anything
+    if user.is_admin():
+        return True
+    
+    # Teachers can delete their own content and student content
+    if user.is_teacher():
+        if hasattr(item, 'user_id'):
+            item_owner = User.query.get(item.user_id)
+            return item.user_id == user.id or (item_owner and item_owner.role == 'student')
+    
+    # Students can only delete their own content
+    return hasattr(item, 'user_id') and item.user_id == user.id
+
+# Routes for handling content deletion with permission check
+@app.route('/lab-reports/delete/<int:report_id>', methods=['POST'])
+@login_required
+def delete_lab_report(report_id):
+    report = LabReport.query.get_or_404(report_id)
+    
+    if check_delete_permission(report, current_user):
+        db.session.delete(report)
+        db.session.commit()
+        flash('Lab report deleted successfully')
+    else:
+        flash('You do not have permission to delete this report')
+        
+    return redirect(url_for('lab_reports'))
+
+@app.route('/project-ideas/delete/<int:project_id>', methods=['POST'])
+@login_required
+def delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    if check_delete_permission(project, current_user):
+        db.session.delete(project)
+        db.session.commit()
+        flash('Project deleted successfully')
+    else:
+        flash('You do not have permission to delete this project')
+        
+    return redirect(url_for('project_ideas'))
+
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()  # First drop all tables to ensure clean state
         db.create_all()  # Then create all tables based on models
         
-        # Create an initial user if none exists
+        # Create an initial admin and teacher user if none exists
         if User.query.count() == 0:
             hashed_password = generate_password_hash('admin123')
-            admin_user = User(username='admin', password=hashed_password)
+            admin_user = User(username='admin', password=hashed_password, role='admin')
+            teacher_user = User(username='teacher', password=hashed_password, role='teacher')
             db.session.add(admin_user)
+            db.session.add(teacher_user)
             db.session.commit()
             
     app.run(debug=True, host='0.0.0.0', port=5000)
