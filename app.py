@@ -116,5 +116,6 @@ def study_groups():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.drop_all()  # First drop all tables to ensure clean state
+        db.create_all()  # Then create all tables based on models
     app.run(debug=True, host='0.0.0.0', port=5000)
