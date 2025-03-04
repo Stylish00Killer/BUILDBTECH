@@ -1,36 +1,88 @@
+
 {% extends "base.html" %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 class="mb-4">Welcome to BUILDBTECH</h1>
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Lab Reports</h5>
-                    <p class="card-text">Manage and create your lab reports</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">View Reports</a>
-                </div>
+    <h1 class="mb-4">Welcome to BUILDBTECH Dashboard</h1>
+    
+    <div class="dashboard-features">
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-flask"></i>
+            </div>
+            <h3>Lab Reports</h3>
+            <div class="feature-card-content">
+                <p>Create, manage, and submit your laboratory reports all in one place. Track your progress and get feedback.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">View Reports</a>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Project Ideas</h5>
-                    <p class="card-text">Get AI-powered project suggestions</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">Explore Ideas</a>
-                </div>
+        
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3>Project Ideas</h3>
+            <div class="feature-card-content">
+                <p>Explore AI-powered project suggestions tailored to your interests and skill level. Get detailed plans and resources.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">Explore Ideas</a>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Exam Prep</h5>
-                    <p class="card-text">Practice tests and study materials</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">Start Learning</a>
-                </div>
+        
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3>Exam Prep</h3>
+            <div class="feature-card-content">
+                <p>Access study materials, practice tests, and personalized review guides to prepare for your exams efficiently.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">Start Learning</a>
+            </div>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-calendar"></i>
+            </div>
+            <h3>Schedule</h3>
+            <div class="feature-card-content">
+                <p>Organize your classes, labs, and study sessions with our interactive calendar. Set reminders for important deadlines.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">View Calendar</a>
+            </div>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3>Progress Tracker</h3>
+            <div class="feature-card-content">
+                <p>Monitor your academic performance and learning progress with detailed analytics and visual reports.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">View Progress</a>
+            </div>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>Study Groups</h3>
+            <div class="feature-card-content">
+                <p>Connect with classmates, form study groups, and collaborate on projects. Share resources and knowledge.</p>
+            </div>
+            <div class="feature-card-footer">
+                <a href="#" class="btn">Find Groups</a>
             </div>
         </div>
     </div>
