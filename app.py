@@ -566,8 +566,6 @@ def delete_note(note_id):
         flash('You do not have permission to delete this note')
     
     return redirect(url_for('notes'))
-def download_note_file(note_id):
-    note = Note.query.get_or_404(note_id)
     
     # Security check: ensure user owns the note
     if note.user_id != current_user.id and not current_user.is_teacher():
