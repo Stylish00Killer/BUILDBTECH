@@ -500,6 +500,15 @@ def update_profile():
     db.session.commit()
     flash('Profile updated successfully!')
     return redirect(url_for('profile'))
+    
+@app.route('/license')
+def license():
+    try:
+        with open('LICENSE.md', 'r') as file:
+            license_content = file.read()
+        return render_template('license.html', license_content=license_content)
+    except FileNotFoundError:
+        return "License file not found.", 404
 
 # AI Service Integration Functions
 def generate_lab_report(experiment_title, observations, course):
