@@ -18,7 +18,7 @@ HUGGINGFACE_API_KEY = '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'
 RESTACK_API_KEY = '7c5c531ec63297b9b03278ecfd3a7618759c0ba7acabd8326833a159a93582bc'
 GOOGLE_TTS_API_KEY = '6d3f04acf06dfa6503aee8686ccbd23045d42414'
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.config['SECRET_KEY'] = os.urandom(24).hex()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///buildbtech.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

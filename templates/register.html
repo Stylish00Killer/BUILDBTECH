@@ -130,6 +130,11 @@
             margin-right: 10px;
             color: var(--accent-color);
         }
+        .register-logo img{
+            max-width:200px;
+            margin: 0 auto;
+            display: block;
+        }
 
         @media (max-width: 768px) {
             .auth-container {
@@ -158,8 +163,10 @@
             </div>
         </div>
         <div class="auth-form">
-            <div class="auth-logo">BUILDBTECH</div>
-            <h2 class="auth-title">Create your account</h2>
+                <div class="register-logo">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="BUILDBTECH">
+                </div>
+                <h2 class="auth-title">Create your account</h2>
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
