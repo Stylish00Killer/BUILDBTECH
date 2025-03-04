@@ -1,30 +1,21 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, send_file
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 import os
 import requests
 import json
 from datetime import datetime
 import sqlite3
 import time
-import shutil
 
-# API Keys - Loaded from environment variables for security
-import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file if it exists
-load_dotenv()
-
-# Get API keys from environment or use fallback for development
-EDEN_AI_API_KEY = os.getenv('EDEN_AI_API_KEY', '')
-DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
-DEEPAI_API_KEY = os.getenv('DEEPAI_API_KEY', '')
-HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY', '')
-RESTACK_API_KEY = os.getenv('RESTACK_API_KEY', '')
-GOOGLE_TTS_API_KEY = os.getenv('GOOGLE_TTS_API_KEY', '')
+# API Keys
+EDEN_AI_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg2ZWY4ODEtMjlmNy00NzY0LWJkOWYtNTVmM2JiMmUzZTQ1IiwidHlwZSI6ImFwaV90b2tlbiJ9.lV7anQ5LLaBekAmABdQwPLI4RbbqWrwAZBTOfxVDGU8'
+DEEPSEEK_API_KEY = 'sk-be3b678f12dd41e1994ee3af6e958fea'
+DEEPAI_API_KEY = 'ebeb9893-4b08-4447-9ab8-be6ec29d18e0'
+HUGGINGFACE_API_KEY = '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'
+RESTACK_API_KEY = '7c5c531ec63297b9b03278ecfd3a7618759c0ba7acabd8326833a159a93582bc'
+GOOGLE_TTS_API_KEY = '6d3f04acf06dfa6503aee8686ccbd23045d42414'
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.config['SECRET_KEY'] = os.urandom(24).hex()
@@ -110,8 +101,6 @@ class Note(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject = db.Column(db.String(100), nullable=False)
-    file_path = db.Column(db.String(255), nullable=True)
-    file_name = db.Column(db.String(255), nullable=True)
 
 class StudyGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -452,32 +441,13 @@ def new_note():
         title = request.form.get('title')
         content = request.form.get('content')
         subject = request.form.get('subject')
-        
-        # Create new note
+
         new_note = Note(
             title=title,
             content=content,
             subject=subject,
             user_id=current_user.id
         )
-        
-        # Handle file upload if present
-        if 'note_file' in request.files and request.files['note_file'].filename != '':
-            file = request.files['note_file']
-            
-            # Create directory if it doesn't exist
-            upload_dir = os.path.join('static', 'uploads', 'notes', str(current_user.id))
-            if not os.path.exists(upload_dir):
-                os.makedirs(upload_dir)
-            
-            # Generate safe filename and save
-            filename = str(int(time.time())) + '_' + file.filename
-            file_path = os.path.join(upload_dir, filename)
-            file.save(file_path)
-            
-            # Store relative path in database
-            new_note.file_path = os.path.join('uploads', 'notes', str(current_user.id), filename)
-            new_note.file_name = file.filename
 
         db.session.add(new_note)
         db.session.commit()
@@ -524,85 +494,6 @@ def new_event():
         return redirect(url_for('events'))
     
     return render_template('features/new_event.html')
-
-@app.route('/notes/download-file/<int:note_id>')
-@login_required
-def download_note_file(note_id):
-    note = Note.query.get_or_404(note_id)
-    
-    # Security check: ensure user owns the note
-    if note.user_id != current_user.id and not current_user.is_teacher():
-        flash('Access denied: You do not have permission to download this file')
-        return redirect(url_for('notes'))
-    
-    # Check if note has a file
-    if not note.file_path:
-        flash('No file attached to this note')
-        return redirect(url_for('notes'))
-    
-    # Return the file for download
-    file_path = os.path.join('static', note.file_path)
-    return send_file(file_path, 
-                    as_attachment=True, 
-                    download_name=note.file_name or 'attachment.file')
-
-# Add route for deleting notes
-@app.route('/notes/delete/<int:note_id>', methods=['POST'])
-@login_required
-def delete_note(note_id):
-    note = Note.query.get_or_404(note_id)
-    
-    if check_delete_permission(note, current_user):
-        # Delete associated file if it exists
-        if note.file_path:
-            file_path = os.path.join('static', note.file_path)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                
-        db.session.delete(note)
-        db.session.commit()
-        flash('Note deleted successfully')
-    else:
-        flash('You do not have permission to delete this note')
-    
-    return redirect(url_for('notes'))
-    
-    # Security check: ensure user owns the note
-    if note.user_id != current_user.id and not current_user.is_teacher():
-        flash('Access denied: You do not have permission to download this file')
-        return redirect(url_for('notes'))
-    
-    # Check if note has a file
-    if not note.file_path:
-        flash('No file attached to this note')
-        return redirect(url_for('notes'))
-    
-    # Return the file for download
-    file_path = os.path.join('static', note.file_path)
-    return send_file(file_path, 
-                    as_attachment=True, 
-                    download_name=note.file_name or 'attachment.file')
-
-# Add route for deleting notes
-@app.route('/notes/delete/<int:note_id>', methods=['POST'])
-@login_required
-def delete_note(note_id):
-    note = Note.query.get_or_404(note_id)
-    
-    if check_delete_permission(note, current_user):
-        # Delete associated file if it exists
-        if note.file_path:
-            file_path = os.path.join('static', note.file_path)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                
-        db.session.delete(note)
-        db.session.commit()
-        flash('Note deleted successfully')
-    else:
-        flash('You do not have permission to delete this note')
-    
-    return redirect(url_for('notes'))
 
 @app.route('/events/delete/<int:event_id>', methods=['POST'])
 @login_required

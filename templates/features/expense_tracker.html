@@ -16,42 +16,6 @@
                 </a>
             </div>
             <div class="card-body">
-                {% if expenses %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Category</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for expense in expenses %}
-                            <tr>
-                                <td>{{ expense.description }}</td>
-                                <td><span class="badge bg-info">{{ expense.category }}</span></td>
-                                <td>${{ "%.2f"|format(expense.amount) }}</td>
-                                <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <form action="{{ url_for('delete_expense', expense_id=expense.id) }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this expense?');">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="alert alert-info">
-                    <p>You haven't recorded any expenses yet. Click the "Add Expense" button to get started.</p>
-                </div>
-                {% endif %}
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -111,11 +75,10 @@
                 <h5 class="m-0">Expense Summary</h5>
             </div>
             <div class="card-body">
-                {% if expenses %}
                 <div class="mb-4">
                     <canvas id="expense-chart"></canvas>
                 </div>
-                <div class="list-group mt-4">
+                <div class="list-group">
                     {% set categories = {} %}
                     {% for expense in expenses %}
                         {% if expense.category in categories %}
@@ -125,30 +88,13 @@
                         {% endif %}
                     {% endfor %}
                     
-                    <div class="list-group-item active">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>Category</strong>
-                            <strong>Amount</strong>
-                        </div>
-                    </div>
-                    
                     {% for category, amount in categories.items() %}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         {{ category }}
                         <span class="badge bg-primary rounded-pill">${{ "%.2f"|format(amount) }}</span>
                     </div>
                     {% endfor %}
-                    
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <strong>Total</strong>
-                        <span class="badge bg-success rounded-pill">${{ "%.2f"|format(total) }}</span>
-                    </div>
                 </div>
-                {% else %}
-                <div class="alert alert-info">
-                    Add expenses to see statistics and charts here.
-                </div>
-                {% endif %}
             </div>
         </div>
         
@@ -156,72 +102,6 @@
             <div class="card-header">
                 <h5 class="m-0">Budget Tips</h5>
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Track all expenses, even small ones.</li>
-                    <li class="list-group-item">Create a monthly budget and stick to it.</li>
-                    <li class="list-group-item">Look for student discounts on textbooks and supplies.</li>
-                    <li class="list-group-item">Cook meals at home instead of eating out.</li>
-                    <li class="list-group-item">Use public transportation or bike when possible.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% if expenses %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get expense data for chart
-        {% set categories = {} %}
-        {% for expense in expenses %}
-            {% if expense.category in categories %}
-                {% set _ = categories.update({expense.category: categories[expense.category] + expense.amount}) %}
-            {% else %}
-                {% set _ = categories.update({expense.category: expense.amount}) %}
-            {% endif %}
-        {% endfor %}
-
-        const ctx = document.getElementById('expense-chart').getContext('2d');
-        const expenseChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [{% for category in categories.keys() %}'{{ category }}',{% endfor %}],
-                datasets: [{
-                    data: [{% for amount in categories.values() %}{{ amount }},{% endfor %}],
-                    backgroundColor: [
-                        '#FF9F40', '#FF6384', '#36A2EB', '#4BC0C0', '#9966FF', 
-                        '#FFCD56', '#C9CBCF', '#7FD13B', '#EA526F', '#7867A7'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                family: "'Comic Sans MS', 'Comic Sans', cursive"
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Expenses by Category',
-                        font: {
-                            family: "'Comic Sans MS', 'Comic Sans', cursive"
-                        }
-                    }
-                }
-            }
-        });
-    });
-</script>
-{% endif %}
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">Create a monthly budget and stick to it</li>

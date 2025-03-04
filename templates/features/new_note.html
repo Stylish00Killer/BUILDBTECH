@@ -1,52 +1,41 @@
+
 {% extends 'base.html' %}
 
 {% block title %}New Note{% endblock %}
 
-{% block page_title %}Create New Note{% endblock %}
+{% block page_title %}New Note{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-md-8 mx-auto">
+    <div class="col-md-10 mx-auto">
         <div class="card">
             <div class="card-header">
-                <h5 class="m-0">Add a New Note</h5>
+                <h5 class="m-0">Create New Note</h5>
             </div>
             <div class="card-body">
-                <form method="post" action="{{ url_for('new_note') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ url_for('new_note') }}">
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
                         <input type="text" class="form-control" id="title" name="title" required>
                     </div>
-
+                    
                     <div class="mb-3">
                         <label for="subject" class="form-label">Subject</label>
                         <select class="form-select" id="subject" name="subject" required>
-                            <option value="">Select a subject</option>
+                            <option value="" selected disabled>Select a subject</option>
                             <option value="Mathematics">Mathematics</option>
                             <option value="Physics">Physics</option>
                             <option value="Computer Science">Computer Science</option>
                             <option value="Electronics">Electronics</option>
-                            <option value="Engineering Design">Engineering Design</option>
-                            <option value="Mechanics">Mechanics</option>
-                            <option value="Chemistry">Chemistry</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
-
+                    
                     <div class="mb-3">
                         <label for="content" class="form-label">Content</label>
-                        <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="12" required></textarea>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="note_file" class="form-label">
-                            Attach File (optional)
-                            <i class="fas fa-info-circle" title="Upload PDFs, images, or other documents related to this note"></i>
-                        </label>
-                        <input type="file" class="form-control" id="note_file" name="note_file">
-                        <div class="form-text">Supported formats: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX, PPT, PPTX (Max size: 5MB)</div>
-                    </div>
-
+                    
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Save Note</button>
                         <a href="{{ url_for('notes') }}" class="btn btn-outline-secondary">Cancel</a>
