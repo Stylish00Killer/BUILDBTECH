@@ -76,14 +76,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logoutMutation = useLogoutMutation();
 
   return (
-    <AuthContext.Provider value={{
-      user: user || null,
-      isLoading,
-      error: error as Error | null,
-      loginMutation,
-      registerMutation,
-      logoutMutation
-    }}>
+    <AuthContext.Provider 
+      value={{
+        user: user || null,
+        isLoading,
+        error: error as Error | null,
+        loginMutation,
+        registerMutation,
+        logoutMutation
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
