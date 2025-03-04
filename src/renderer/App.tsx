@@ -10,7 +10,7 @@ import ExamPrepPage from './pages/ExamPrepPage';
 import ChatPage from './pages/ChatPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
@@ -25,6 +25,6 @@ function App() {
       </Router>
     </AuthProvider>
   );
-}
+};
 
 export default App;

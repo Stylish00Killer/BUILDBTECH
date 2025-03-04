@@ -1,70 +1,81 @@
-import SQLite from 'better-sqlite3';
-import * as path from 'path';
-//import { app } from 'electron'; //Removed as app is not used anymore.
+import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { User, LabReport } from '../../shared/types';
 
+interface BuildBTechDB extends DBSchema {
+  users: {
+    key: number;
+    value: User;
+    indexes: { 'by-username': string };
+  };
+  lab_reports: {
+    key: number;
+    value: LabReport;
+    indexes: { 'by-userId': number };
+  };
+}
+
 class StorageService {
-  private db: SQLite.Database;
+  private dbPromise: Promise<IDBPDatabase<BuildBTechDB>>;
 
   constructor() {
-    // Get the user data path from the main process via the preload script
-    const userDataPath = window.electron.getAppPath();
-    const dbPath = path.join(userDataPath, 'buildbtech.db');
+    this.dbPromise = openDB<BuildBTechDB>('buildbtech-db', 1, {
+      upgrade(db) {
+        // Users store
+        if (!db.objectStoreNames.contains('users')) {
+          const userStore = db.createObjectStore('users', { 
+            keyPath: 'id', 
+            autoIncrement: true 
+          });
+          userStore.createIndex('by-username', 'username', { unique: true });
+        }
 
-    // Ensure the directory exists
-    this.db = new SQLite(dbPath);
-    this.initializeTables();
+        // Lab reports store
+        if (!db.objectStoreNames.contains('lab_reports')) {
+          const reportStore = db.createObjectStore('lab_reports', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+          reportStore.createIndex('by-userId', 'userId');
+        }
+      },
+    });
   }
 
-  private initializeTables() {
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS lab_reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        data TEXT NOT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (userId) REFERENCES users(id)
-      );
-    `);
-  }
-
-  async getUserByUsername(username: string): Promise<User | null> {
-    const stmt = this.db.prepare('SELECT * FROM users WHERE username = ?');
-    return stmt.get(username) as User | null;
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const db = await this.dbPromise;
+    return db.getFromIndex('users', 'by-username', username);
   }
 
   async createUser(username: string, password: string): Promise<User> {
-    const stmt = this.db.prepare(
-      'INSERT INTO users (username, password) VALUES (?, ?)'
-    );
-    const result = stmt.run(username, password);
+    const db = await this.dbPromise;
+    const id = await db.add('users', {
+      username,
+      password,
+      id: 0 // Will be auto-incremented
+    });
+
     return {
-      id: result.lastInsertRowid as number,
+      id: id as number,
       username,
       password
     };
   }
 
   async getLabReports(userId: number): Promise<LabReport[]> {
-    const stmt = this.db.prepare('SELECT * FROM lab_reports WHERE userId = ?');
-    return stmt.all(userId) as LabReport[];
+    const db = await this.dbPromise;
+    return db.getAllFromIndex('lab_reports', 'by-userId', userId);
   }
 
   async saveLabReport(report: Omit<LabReport, 'id' | 'createdAt'>): Promise<LabReport> {
-    const stmt = this.db.prepare(
-      'INSERT INTO lab_reports (userId, title, content, data) VALUES (?, ?, ?, ?)'
-    );
-    const result = stmt.run(report.userId, report.title, report.content, report.data);
+    const db = await this.dbPromise;
+    const id = await db.add('lab_reports', {
+      ...report,
+      id: 0, // Will be auto-incremented
+      createdAt: new Date().toISOString()
+    });
+
     return {
-      id: result.lastInsertRowid as number,
+      id: id as number,
       ...report,
       createdAt: new Date().toISOString()
     };
