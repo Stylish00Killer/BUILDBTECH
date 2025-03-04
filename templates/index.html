@@ -17,7 +17,7 @@
                 <p>Create, manage, and submit your laboratory reports all in one place. Track your progress and get feedback.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">View Reports</a>
+                <a href="{{ url_for('lab_reports') }}" class="btn">View Reports</a>
             </div>
         </div>
         
@@ -30,7 +30,7 @@
                 <p>Explore AI-powered project suggestions tailored to your interests and skill level. Get detailed plans and resources.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">Explore Ideas</a>
+                <a href="{{ url_for('project_ideas') }}" class="btn">Explore Ideas</a>
             </div>
         </div>
         
@@ -43,7 +43,7 @@
                 <p>Access study materials, practice tests, and personalized review guides to prepare for your exams efficiently.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">Start Learning</a>
+                <a href="{{ url_for('exam_prep') }}" class="btn">Start Learning</a>
             </div>
         </div>
         
@@ -56,7 +56,7 @@
                 <p>Organize your classes, labs, and study sessions with our interactive calendar. Set reminders for important deadlines.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">View Calendar</a>
+                <a href="{{ url_for('schedule') }}" class="btn">View Calendar</a>
             </div>
         </div>
         
@@ -69,7 +69,7 @@
                 <p>Monitor your academic performance and learning progress with detailed analytics and visual reports.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">View Progress</a>
+                <a href="{{ url_for('progress') }}" class="btn">View Progress</a>
             </div>
         </div>
         
@@ -82,7 +82,7 @@
                 <p>Connect with classmates, form study groups, and collaborate on projects. Share resources and knowledge.</p>
             </div>
             <div class="feature-card-footer">
-                <a href="#" class="btn">Find Groups</a>
+                <a href="{{ url_for('study_groups') }}" class="btn">Find Groups</a>
             </div>
         </div>
     </div>

@@ -1,10 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+
+from flask import Flask, render_template, redirect, url_for, request, flash, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key' #This should be a strong, randomly generated key in a production environment.
+app.config['SECRET_KEY'] = os.urandom(24).hex()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///buildbtech.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -15,7 +17,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -36,7 +38,7 @@ def login():
         password = request.form.get('password')
 
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             login_user(user)
             next_page = request.args.get('next')
             return redirect(next_page or url_for('index'))
@@ -64,7 +66,9 @@ def register():
             flash('Username already exists')
             return render_template('register.html')
 
-        new_user = User(username=username, password=password)
+        # Hash the password before storing
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
@@ -78,6 +82,37 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+# Add new routes for dashboard features
+@app.route('/lab-reports')
+@login_required
+def lab_reports():
+    return render_template('features/lab_reports.html')
+
+@app.route('/project-ideas')
+@login_required
+def project_ideas():
+    return render_template('features/project_ideas.html')
+
+@app.route('/exam-prep')
+@login_required
+def exam_prep():
+    return render_template('features/exam_prep.html')
+
+@app.route('/schedule')
+@login_required
+def schedule():
+    return render_template('features/schedule.html')
+
+@app.route('/progress')
+@login_required
+def progress():
+    return render_template('features/progress.html')
+
+@app.route('/study-groups')
+@login_required
+def study_groups():
+    return render_template('features/study_groups.html')
 
 if __name__ == '__main__':
     with app.app_context():

@@ -278,11 +278,12 @@
             <h3>BUILDBTECH</h3>
         </div>
         <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
-        <a href="#"><i class="fas fa-flask"></i> Lab Reports</a>
-        <a href="#"><i class="fas fa-lightbulb"></i> Project Ideas</a>
-        <a href="#"><i class="fas fa-book"></i> Exam Prep</a>
-        <a href="#"><i class="fas fa-calendar"></i> Schedule</a>
-        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        <a href="{{ url_for('lab_reports') }}"><i class="fas fa-flask"></i> Lab Reports</a>
+        <a href="{{ url_for('project_ideas') }}"><i class="fas fa-lightbulb"></i> Project Ideas</a>
+        <a href="{{ url_for('exam_prep') }}"><i class="fas fa-book"></i> Exam Prep</a>
+        <a href="{{ url_for('schedule') }}"><i class="fas fa-calendar"></i> Schedule</a>
+        <a href="{{ url_for('progress') }}"><i class="fas fa-chart-line"></i> Progress</a>
+        <a href="{{ url_for('study_groups') }}"><i class="fas fa-users"></i> Study Groups</a>
         {% if current_user.is_authenticated %}
         <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
         {% endif %}

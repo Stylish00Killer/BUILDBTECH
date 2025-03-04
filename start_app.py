@@ -1,9 +1,7 @@
+
 import os
 import sys
 import subprocess
-import webbrowser
-import time
-from pathlib import Path
 
 def main():
     """Start the Flask application"""
@@ -11,7 +9,6 @@ def main():
     
     try:
         print("Starting Flask server...")
-        # Using the existing Flask app
         subprocess.run(['python', 'app.py'])
     except KeyboardInterrupt:
         print("\nApplication shutdown requested.")
