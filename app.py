@@ -11,13 +11,20 @@ import sqlite3
 import time
 import shutil
 
-# API Keys
-EDEN_AI_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg2ZWY4ODEtMjlmNy00NzY0LWJkOWYtNTVmM2JiMmUzZTQ1IiwidHlwZSI6ImFwaV90b2tlbiJ9.lV7anQ5LLaBekAmABdQwPLI4RbbqWrwAZBTOfxVDGU8'
-DEEPSEEK_API_KEY = 'sk-be3b678f12dd41e1994ee3af6e958fea'
-DEEPAI_API_KEY = 'ebeb9893-4b08-4447-9ab8-be6ec29d18e0'
-HUGGINGFACE_API_KEY = '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'
-RESTACK_API_KEY = '7c5c531ec63297b9b03278ecfd3a7618759c0ba7acabd8326833a159a93582bc'
-GOOGLE_TTS_API_KEY = '6d3f04acf06dfa6503aee8686ccbd23045d42414'
+# API Keys - Loaded from environment variables for security
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
+
+# Get API keys from environment or use fallback for development
+EDEN_AI_API_KEY = os.getenv('EDEN_AI_API_KEY', '')
+DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
+DEEPAI_API_KEY = os.getenv('DEEPAI_API_KEY', '')
+HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY', '')
+RESTACK_API_KEY = os.getenv('RESTACK_API_KEY', '')
+GOOGLE_TTS_API_KEY = os.getenv('GOOGLE_TTS_API_KEY', '')
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.config['SECRET_KEY'] = os.urandom(24).hex()
@@ -559,11 +566,6 @@ def delete_note(note_id):
         flash('You do not have permission to delete this note')
     
     return redirect(url_for('notes'))
-
-            
-
-@app.route('/notes/download-file/<int:note_id>')
-@login_required
 def download_note_file(note_id):
     note = Note.query.get_or_404(note_id)
     
