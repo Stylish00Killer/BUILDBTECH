@@ -4,7 +4,7 @@ modules = ["nodejs-20", "python-3.11"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Flask Server"
+runButton = "Flask App"
 
 [[workflows.workflow]]
 name = "Project"
@@ -51,6 +51,14 @@ waitForPort = 5000
 
 [[workflows.workflow]]
 name = "BUILDBTECH App"
+author = 40207877
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+
+[[workflows.workflow]]
+name = "Flask App"
 author = 40207877
 
 [[workflows.workflow.tasks]]
