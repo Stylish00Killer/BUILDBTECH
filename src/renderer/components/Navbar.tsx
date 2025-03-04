@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
           <Link href="/">
             <a className="text-xl font-bold text-gray-800">BUILDBTECH</a>
           </Link>
-          
+
           {user ? (
             <div className="flex items-center space-x-4">
               <Link href="/lab-reports">
@@ -23,6 +23,9 @@ const Navbar: React.FC = () => {
               </Link>
               <Link href="/exam-prep">
                 <a className="text-gray-600 hover:text-gray-800">Exam Prep</a>
+              </Link>
+              <Link href="/chat">
+                <a className="text-gray-600 hover:text-gray-800">AI Chat</a>
               </Link>
               <button
                 onClick={() => logoutMutation.mutate()}

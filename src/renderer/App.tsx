@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import LabReportPage from './pages/LabReportPage';
 import ProjectIdeasPage from './pages/ProjectIdeasPage';
 import ExamPrepPage from './pages/ExamPrepPage';
+import ChatPage from './pages/ChatPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <ProtectedRoute path="/lab-reports" component={LabReportPage} />
           <ProtectedRoute path="/project-ideas" component={ProjectIdeasPage} />
           <ProtectedRoute path="/exam-prep" component={ExamPrepPage} />
+          <ProtectedRoute path="/chat" component={ChatPage} />
         </Layout>
       </Router>
     </AuthProvider>

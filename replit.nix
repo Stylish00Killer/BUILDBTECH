@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.cups
     pkgs.nspr
     pkgs.xorg.libXfixes
     pkgs.xorg.libXdamage

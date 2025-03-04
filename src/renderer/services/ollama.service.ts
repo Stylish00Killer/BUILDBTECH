@@ -68,6 +68,34 @@ export class OllamaService {
     }
   }
 
+  async generateResponse(prompt: string): Promise<string> {
+    const status = await this.checkStatus();
+    if (!status.isAvailable || !status.modelLoaded) {
+      throw new Error(status.error || 'Ollama service is not available');
+    }
+
+    try {
+      const response = await this.retry(async () => {
+        const result = await axios.post<OllamaResponse>(`${this.baseUrl}/generate`, {
+          model: this.modelName,
+          prompt,
+          stream: false,
+          options: {
+            temperature: 0.7,
+            top_p: 0.9,
+            stop: ['<|endoftext|>']
+          }
+        });
+        return result.data.response;
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Error generating response:', error);
+      throw new Error('Failed to generate response. Please check if Ollama is running correctly.');
+    }
+  }
+
   async generateLabReport(experimentData: string, observations: string): Promise<string> {
     const status = await this.checkStatus();
     if (!status.isAvailable || !status.modelLoaded) {
