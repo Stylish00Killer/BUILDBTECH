@@ -51,6 +51,12 @@
                             {% endif %}
                         </tbody>
                         <tfoot>
+    <tr>
+        <th colspan="3" class="text-end">Total:</th>
+        <th>${{ "%.2f"|format(total) }}</th>
+        <th></th>
+    </tr>
+</tfoot>
                             <tr class="fw-bold">
                                 <td colspan="3" class="text-end">Total:</td>
                                 <td>${{ "%.2f"|format(total) }}</td>
@@ -157,7 +163,7 @@
                 }
             });
         } else {
-            document.getElementById('expense-chart').parentNode.innerHTML = 
+            document.getElementById('expense-chart').parentNode.innerHTML = '<div class="alert alert-info">Add expenses to see your spending chart.</div>';e.innerHTML = 
                 '<div class="alert alert-info">Add expenses to see your spending chart.</div>';
         }
     });

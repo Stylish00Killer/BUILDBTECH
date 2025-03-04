@@ -1,128 +1,119 @@
-
 {% extends 'base.html' %}
 
 {% block title %}Events{% endblock %}
 
-{% block page_title %}Events{% endblock %}
+{% block page_title %}Events Calendar{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-12">
+    <div class="col-md-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="m-0">Campus Events & Activities</h5>
-                <a href="{{ url_for('new_event') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus"></i> Add Event
-                </a>
+                <h5 class="m-0">Upcoming Events</h5>
+                <div>
+                    <select id="event-type-filter" class="form-select form-select-sm d-inline-block me-2" style="width: auto;">
+                        <option value="">All Events</option>
+                        <option value="academic">Academic</option>
+                        <option value="career">Career</option>
+                        <option value="social">Social</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="competition">Competition</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <a href="{{ url_for('new_event') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Add Event
+                    </a>
+                </div>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div id="events-calendar"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0">Upcoming Events</h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" id="upcoming-events">
-                                    {% if events %}
-                                        {% for event in events %}
-                                            {% if event.date >= now %}
-                                            <a href="#" class="list-group-item list-group-item-action event-item" 
-                                               data-id="{{ event.id }}"
-                                               data-title="{{ event.title }}"
-                                               data-description="{{ event.description }}"
-                                               data-date="{{ event.date.strftime('%Y-%m-%d %H:%M') }}"
-                                               data-location="{{ event.location }}"
-                                               data-type="{{ event.event_type }}">
-                                                <div class="d-flex w-100 justify-content-between">
-                                                    <h5 class="mb-1">{{ event.title }}</h5>
-                                                    <small>{{ event.date.strftime('%b %d') }}</small>
-                                                </div>
-                                                <p class="mb-1">{{ event.description|truncate(80) }}</p>
-                                                <small>
-                                                    <i class="fas fa-map-marker-alt"></i> {{ event.location or 'TBA' }} |
-                                                    <i class="fas fa-tag"></i> {{ event.event_type }}
-                                                </small>
-                                            </a>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="p-3">
-                                            <p>No upcoming events scheduled. Add one to get started!</p>
-                                        </div>
+                <div class="row">
+                    {% if events %}
+                        {% for event in events %}
+                        <div class="col-md-6 mb-3 event-card" data-type="{{ event.event_type }}">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-{{ 'primary' if event.event_type == 'academic' else ('success' if event.event_type == 'career' else ('info' if event.event_type == 'social' else ('warning' if event.event_type == 'workshop' else ('danger' if event.event_type == 'competition' else 'secondary')))) }}">{{ event.event_type }}</span>
+                                    <small>{{ event.date.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ event.title }}</h5>
+                                    <p class="card-text text-truncate">{{ event.description }}</p>
+                                    <p class="card-text"><small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ event.location or 'TBA' }}</small></p>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between">
+                                    <button class="btn btn-sm btn-outline-secondary event-details-btn" 
+                                            data-title="{{ event.title }}" 
+                                            data-date="{{ event.date.strftime('%b %d, %Y') }}" 
+                                            data-location="{{ event.location }}" 
+                                            data-type="{{ event.event_type }}" 
+                                            data-description="{{ event.description }}">
+                                        View Details
+                                    </button>
+                                    {% if event.user_id == current_user.id or current_user.is_admin() %}
+                                    <form action="{{ url_for('delete_event', event_id=event.id) }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <h5>Browse Events</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <select id="event-type-filter" class="form-select">
-                                <option value="">All Event Types</option>
-                                <option value="Workshop">Workshop</option>
-                                <option value="Seminar">Seminar</option>
-                                <option value="Competition">Competition</option>
-                                <option value="Cultural">Cultural</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Other">Other</option>
-                            </select>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                No events scheduled. <a href="{{ url_for('new_event') }}">Create an event</a> to get started!
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="row" id="all-events">
-                        {% if events %}
-                            {% for event in events %}
-                            <div class="col-md-4 mb-4 event-card" data-type="{{ event.event_type }}">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h6 class="m-0">{{ event.title }}</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="badge bg-info mb-2">{{ event.event_type }}</p>
-                                        <p><strong>Date:</strong> {{ event.date.strftime('%Y-%m-%d %H:%M') }}</p>
-                                        <p><strong>Location:</strong> {{ event.location or 'TBA' }}</p>
-                                        <p>{{ event.description|truncate(100) }}</p>
-                                    </div>
-                                    <div class="card-footer d-flex justify-content-between">
-                                        <button class="btn btn-sm btn-primary view-event-details" 
-                                                data-id="{{ event.id }}"
-                                                data-title="{{ event.title }}"
-                                                data-description="{{ event.description }}"
-                                                data-date="{{ event.date.strftime('%Y-%m-%d %H:%M') }}"
-                                                data-location="{{ event.location }}"
-                                                data-type="{{ event.event_type }}">
-                                            View Details
-                                        </button>
-                                        {% if event.user_id == current_user.id %}
-                                        <form action="{{ url_for('delete_event', event_id=event.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this event?');">
-                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                        </form>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="col-12">
-                                <p>No events available.</p>
-                            </div>
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="m-0">Event Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% set categories = {'academic': 0, 'career': 0, 'social': 0, 'workshop': 0, 'competition': 0, 'other': 0} %}
+                    {% for event in events %}
+                        {% if event.event_type in categories %}
+                            {% set _ = categories.update({event.event_type: categories[event.event_type] + 1}) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for category, count in categories.items() %}
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="document.getElementById('event-type-filter').value='{{ category }}'; document.getElementById('event-type-filter').dispatchEvent(new Event('change'));">
+                        {{ category|capitalize }}
+                        <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Event Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Add location details for in-person events</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Include meeting links for virtual events</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Choose the right category for better visibility</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Add detailed descriptions to attract participants</li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Event Details Modal -->
-<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -130,19 +121,66 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Date & Time:</strong> <span id="event-modal-date"></span></p>
-                <p><strong>Location:</strong> <span id="event-modal-location"></span></p>
-                <p><strong>Event Type:</strong> <span id="event-modal-type"></span></p>
+                <div class="mb-3">
+                    <span class="badge bg-primary" id="event-modal-type"></span>
+                    <p class="mt-2"><i class="far fa-calendar-alt me-2"></i> <span id="event-modal-date"></span></p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> <span id="event-modal-location"></span></p>
+                </div>
                 <hr>
+                <h6>Description:</h6>
                 <p id="event-modal-description"></p>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="add-to-calendar-btn">
+                    <i class="fas fa-calendar-plus"></i> Add to Calendar
+                </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="add-to-calendar-btn">Add to Calendar</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup event detail buttons
+        document.querySelectorAll('.event-details-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const title = this.getAttribute('data-title');
+                const date = this.getAttribute('data-date');
+                const location = this.getAttribute('data-location');
+                const type = this.getAttribute('data-type');
+                const description = this.getAttribute('data-description');
+
+                document.getElementById('event-modal-title').textContent = title;
+                document.getElementById('event-modal-date').textContent = date;
+                document.getElementById('event-modal-location').textContent = location || 'TBA';
+                document.getElementById('event-modal-type').textContent = type;
+                document.getElementById('event-modal-description').textContent = description;
+
+                const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+                modal.show();
+            });
+        });
+
+        // Filter events by type
+        document.getElementById('event-type-filter').addEventListener('change', function() {
+            const filterValue = this.value;
+
+            document.querySelectorAll('.event-card').forEach(card => {
+                if (filterValue === '' || card.getAttribute('data-type') === filterValue) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Add to calendar functionality (simulation)
+        document.getElementById('add-to-calendar-btn').addEventListener('click', function() {
+            alert('Event added to your calendar!');
+        });
+    });
+</script>
 {% endblock %}
 
 {% block extra_head %}
@@ -163,7 +201,6 @@
     // Initialize FullCalendar
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('events-calendar');
-        
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             headerToolbar: {
@@ -192,16 +229,12 @@
                 document.getElementById('event-modal-location').textContent = info.event.extendedProps.location;
                 document.getElementById('event-modal-type').textContent = info.event.extendedProps.type;
                 document.getElementById('event-modal-description').textContent = info.event.extendedProps.description;
-                
                 const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
                 modal.show();
             }
         });
-        
         calendar.render();
     });
-    
-    // Event color based on type
     function getEventColor(type) {
         const colors = {
             'Workshop': '#3498db',
@@ -211,36 +244,27 @@
             'Sports': '#f39c12',
             'Other': '#95a5a6'
         };
-        
         return colors[type] || '#95a5a6';
     }
-    
-    // Show event details from list/cards
     document.querySelectorAll('.event-item, .view-event-details').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
-            
             const title = this.getAttribute('data-title');
             const date = this.getAttribute('data-date');
             const location = this.getAttribute('data-location');
             const type = this.getAttribute('data-type');
             const description = this.getAttribute('data-description');
-            
             document.getElementById('event-modal-title').textContent = title;
             document.getElementById('event-modal-date').textContent = new Date(date).toLocaleString();
             document.getElementById('event-modal-location').textContent = location || 'TBA';
             document.getElementById('event-modal-type').textContent = type;
             document.getElementById('event-modal-description').textContent = description;
-            
             const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
             modal.show();
         });
     });
-    
-    // Filter events by type
     document.getElementById('event-type-filter').addEventListener('change', function() {
         const filterValue = this.value;
-        
         document.querySelectorAll('.event-card').forEach(card => {
             if (filterValue === '' || card.getAttribute('data-type') === filterValue) {
                 card.style.display = '';
@@ -249,8 +273,6 @@
             }
         });
     });
-    
-    // Add to calendar functionality (simulation)
     document.getElementById('add-to-calendar-btn').addEventListener('click', function() {
         alert('Event added to your calendar!');
     });

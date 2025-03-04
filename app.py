@@ -382,6 +382,20 @@ def new_expense():
 
     return render_template('features/new_expense.html')
 
+@app.route('/expense-tracker/delete/<int:expense_id>', methods=['POST'])
+@login_required
+def delete_expense(expense_id):
+    expense = Expense.query.get_or_404(expense_id)
+    
+    if check_delete_permission(expense, current_user):
+        db.session.delete(expense)
+        db.session.commit()
+        flash('Expense deleted successfully')
+    else:
+        flash('You do not have permission to delete this expense')
+    
+    return redirect(url_for('expense_tracker'))
+
 # Additional Features
 @app.route('/marketplace')
 @login_required
@@ -447,6 +461,53 @@ def new_note():
 def events():
     events = Event.query.all()
     return render_template('features/events.html', events=events)
+
+@app.route('/events/new', methods=['GET', 'POST'])
+@login_required
+def new_event():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        date_str = request.form.get('date')
+        location = request.form.get('location')
+        event_type = request.form.get('event_type')
+        
+        # Convert string date to datetime object
+        try:
+            event_date = datetime.strptime(date_str, '%Y-%m-%d')
+        except ValueError:
+            flash('Invalid date format')
+            return render_template('features/new_event.html')
+        
+        new_event = Event(
+            title=title,
+            description=description,
+            date=event_date,
+            location=location,
+            event_type=event_type,
+            user_id=current_user.id
+        )
+        
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Event created successfully!')
+        return redirect(url_for('events'))
+    
+    return render_template('features/new_event.html')
+
+@app.route('/events/delete/<int:event_id>', methods=['POST'])
+@login_required
+def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    
+    if check_delete_permission(event, current_user):
+        db.session.delete(event)
+        db.session.commit()
+        flash('Event deleted successfully')
+    else:
+        flash('You do not have permission to delete this event')
+    
+    return redirect(url_for('events'))
 
 @app.route('/profile')
 @login_required
