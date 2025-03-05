@@ -11,7 +11,7 @@ buildbtech/
 ├── app.py                    # Main Flask application with routes and models
 ├── static/
 │   ├── css/
-│   │   └── style.css        # Main stylesheet (peach-orange theme)
+│   │   └── style.css        # Main stylesheet (Green theme)
 │   ├── js/
 │   │   └── app.js          # Client-side JavaScript
 │   └── images/
