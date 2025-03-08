@@ -11,7 +11,7 @@ buildbtech/
 ├── app.py                    # Main Flask application with routes and models
 ├── static/
 │   ├── css/
-│   │   └── style.css        # Main stylesheet (peach-orange theme)
+│   │   └── style.css        # Main stylesheet (Green theme)
 │   ├── js/
 │   │   └── app.js          # Client-side JavaScript
 │   └── images/
@@ -44,8 +44,8 @@ The application uses a warm, student-friendly design:
 - Font: Comic Sans MS for a playful, approachable feel
 - Colors:
   - Background: #ffefd5 (Papaya Whip)
-  - Primary: #ff4500 (Orange Red)
-  - Secondary: #ff6347 (Tomato)
+  - Primary: #427B17 (green)
+  - Secondary: #7cfc00 (lawn green)
   - Accent: #ffdab9 (Peach Puff)
   - Text: #ff4500 (Orange Red)
 
