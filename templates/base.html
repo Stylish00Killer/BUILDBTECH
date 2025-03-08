@@ -15,7 +15,7 @@
             --primary-color: rgb(66, 123, 23);
             --secondary-color: #5fff47;
             --accent-color: #ffdab9;
-            --text-color: #ff4500;
+            --text-color: rgb(66, 123, 23);
             --background-color: #ffefd5;
             --sidebar-width: 250px;
         }
@@ -159,7 +159,7 @@
         }
         
         .offline-badge {
-            background-color: #dc3545;
+            background-color: rgb(66, 123, 23);
             color: white;
             padding: 3px 8px;
             border-radius: 4px;
@@ -237,7 +237,8 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="logo">
-            <img src="{{ url_for('static', filename='Screenshot 2025-03-01 151902.png') }}" alt="BUILDBTECH" style="max-width: 100%; max-height: 100px;">
+            <img src="{{ url_for('static', filename='images/logo.ico') }}" alt="BUILDBTECH" style="max-width: 100%; max-height: 100px;">
+            <span>BUILDBTECH</span>
         </div>
         <ul class="nav flex-column">
             <li>
@@ -291,7 +292,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url_for('expense_tracker') }}" class="{{ 'active' if 'expense-tracker' in request.path }}">
+                <a href="{{ url_for('expense_tracker') }}" class="{{ 'active' if 'expense-tracker' in request.path }}"></a>
                     <i class="fas fa-wallet"></i> <span>Expenses</span>
                 </a>
             </li>

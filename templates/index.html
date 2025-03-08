@@ -18,7 +18,7 @@
                     <div class="card-body">
                         <h2>Hello, {{ current_user.username }}!</h2>
                         <p class="lead">Your all-in-one platform for academic success and career growth.</p>
-                        <p>BUILDBTECH offers AI-powered tools to streamline your studies, collaborate on projects, and manage your academic journey more effectively.</p>
+                        <p>BUILDBTECH offers AI-powered tools to streamline your studies, collaborate on projects, and manage your academic journey more effectively. Created by students, for students</p>
                         <div class="mt-3">
                             <a href="{{ url_for('lab_reports') }}" class="btn btn-primary me-2 mb-2">
                                 <i class="fas fa-flask me-1"></i> Lab Reports
@@ -175,6 +175,11 @@
             </div>
         </div>
     </div>
+</div>
+<div class="text-center text-muted mt-5">
+    <marquee behavior="scroll" direction="left">
+        &copy; 2025 BUILDBTECH App built in collaboration with <a href="https://github.com/STYLISH00KILLER" target="_blank">STYLISH00KILLER</a>. Visit GitHub for more details.
+    </marquee>
 </div>
 {% endblock %}
 
