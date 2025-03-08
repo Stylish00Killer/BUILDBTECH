@@ -37,7 +37,7 @@ Before running this application, ensure you have the following installed:
 5. **Access the Application**  
     Open your browser and go to:
     ```cpp
-    http://0.0.0.0:5000
+    http://127.0.0.1:5000
     ```
     Adjust the port number if your application uses a different one.
 
