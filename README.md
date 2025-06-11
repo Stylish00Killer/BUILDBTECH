@@ -2,7 +2,7 @@
 
 *Learn. Build. Succeed.*
 
-An offline-first desktop application for BTech students with core academic tools and local AI processing capabilities.
+An desktop application for BTech students with core academic tools and AI processing capabilities.
 
 ## Project Files Structure
 
